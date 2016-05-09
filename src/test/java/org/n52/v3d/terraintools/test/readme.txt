@@ -1,0 +1,1 @@
+This package contains JUnit tests.
