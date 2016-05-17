@@ -13,8 +13,7 @@ Best way to get started is to start with these:
 ## Team Members
 * Benno Schmidt [@BennoSchmidt](https://github.com/BennoSchmidt)
 * Christian Danowski, [@cDanowski](http://github.com/cDanowski)
-* Martin May, (m.may@52north.org)
-* Adhitya Kamakshidasan, [@wolfshadow18](http://github.com/wolfshadow18) 
+* Adhitya Kamakshidasan, [@kamakshidasan](http://github.com/wolfshadow18) 
 
 ## Contributor License Agreement
 

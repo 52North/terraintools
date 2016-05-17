@@ -1,0 +1,259 @@
+/**
+ * Copyright (C) 2016-2016 52°North Initiative for Geospatial Open Source
+ * Software GmbH
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License version 2 as publishedby the Free
+ * Software Foundation.
+ *
+ * If the program is linked with libraries which are licensed under one of the
+ * following licenses, the combination of the program with the linked library is
+ * not considered a "derivative work" of the program:
+ *
+ *     - Apache License, version 2.0
+ *     - Apache Software License, version 1.0
+ *     - GNU Lesser General Public License, version 3
+ *     - Mozilla Public License, versions 1.0, 1.1 and 2.0
+ *     - Common Development and Distribution License (CDDL), version 1.0
+ *
+ * Therefore the distribution of the program linked with libraries licensed under
+ * the aforementioned licenses, is permitted by the copyright holders if the
+ * distribution is compliant with both the GNU General Public License version 2
+ * and the aforementioned licenses.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ */
+package org.n52.v3d.triturus.viskml;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.n52.v3d.triturus.core.T3dException;
+import org.n52.v3d.triturus.gisimplm.GmMeasurementPath;
+import org.n52.v3d.triturus.t3dutil.T3dSymbolInstance;
+import org.n52.v3d.triturus.vgis.T3dSRSException;
+import org.n52.v3d.triturus.vgis.VgAttrFeature;
+import org.n52.v3d.triturus.vgis.VgGeomObject;
+import org.n52.v3d.triturus.vgis.VgPoint;
+
+/**
+ * KML scene description. This class allows to specify KML-based scene
+ * descriptions, e.g. to enable geo-visualizations in GoogleEarth. Note that all
+ * information that will be added to the scene must refer to WGS84 coordinates!
+ * 
+ * @author Benno Schmidt, Marius Klug, Christian Danowski
+ */
+public class KmlScene {
+	private List<VgPoint> mPointGeometries;
+	private List<VgAttrFeature> mPointFeatures;
+	private List<T3dSymbolInstance> mSymbols;
+	private List<GmMeasurementPath> mMeasurementPaths;
+
+	private BufferedWriter mDoc;
+
+	public KmlScene() {
+		mPointGeometries = new ArrayList<VgPoint>();
+		mPointFeatures = new ArrayList<VgAttrFeature>();
+		mSymbols = new ArrayList<T3dSymbolInstance>();
+		mMeasurementPaths = new ArrayList<GmMeasurementPath>();
+	}
+
+	private void wl(String pLine) {
+		try {
+			mDoc.write(pLine);
+			mDoc.newLine();
+		} catch (IOException e) {
+			throw new T3dException(e.getMessage());
+		}
+	}
+
+	/**
+	 * adds a point of interest (POI) to the current scene. Here, these POIs are
+	 * pure point geometries without any thematic attributes.
+	 * 
+	 * @param pPos
+	 *            POI location
+	 */
+	public void add(VgPoint pPos) {
+		checkCRS(pPos);
+
+		mPointGeometries.add(pPos);
+	}
+
+	/**
+	 * adds a point of interest (POI) to the current scene. Here, these POIs are
+	 * point geometries and thematic attributes.
+	 * 
+	 * @param pPos
+	 *            POI features
+	 */
+	public void add(VgAttrFeature pPOI) {
+		if (!(pPOI.getGeometry() instanceof VgPoint)) {
+			throw new T3dException("POIs must be defined by point geometries!");
+		}
+
+		checkCRS((VgPoint) pPOI.getGeometry());
+
+		mPointFeatures.add(pPOI);
+	}
+
+	/**
+	 * adds a cartographic symbol to the current scene.
+	 * 
+	 * @param pSymbol
+	 */
+	public void add(T3dSymbolInstance pSymbol) {
+		// TODO
+	}
+
+	/**
+	 * adds a measurement path to the current scene.
+	 * 
+	 * @param pMeasurementPath
+	 *            Measurement path
+	 */
+	public void add(GmMeasurementPath pMeasurementPath) {
+		// TODO auf WGS84 pr�fen!!
+
+		this.mMeasurementPaths.add(pMeasurementPath);
+	}
+
+	private void checkCRS(VgPoint pPos) {
+		if (!VgGeomObject.SRSLatLonWgs84.equalsIgnoreCase(pPos.getSRS())) {
+			throw new T3dSRSException(
+					"KML objects must refer to WGS84 coordinate!");
+		}
+	}
+
+	/**
+	 * generates a KML document that contains the objects that have been added
+	 * to the current scene.
+	 * 
+	 * @param pFilePath
+	 *            File path, e.g. "/myfiles/example.kml"
+	 */
+	public void generateScene(String pFilePath) {
+
+		int pointNumber = 0;
+		try {
+			mDoc = new BufferedWriter(new FileWriter(pFilePath));
+
+			wl("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+			wl("<kml xmlns=\"http://www.opengis.net/kml/2.2\">");
+			wl("<Document>");
+
+			
+			if (!mPointFeatures.isEmpty()) {
+
+				
+				for (int i = 0; i < this.mPointFeatures.size(); i++) {
+
+					Object geom = this.mPointFeatures.get(i).getGeometry();
+					if (!(geom instanceof VgPoint)) {
+						throw new T3dException("Point geometry expected ...");
+					}
+					VgPoint yourPoint = (VgPoint) geom;
+					double x = yourPoint.getX();
+					double y = yourPoint.getY();
+					double z = yourPoint.getZ();
+					wl("	<Placemark>");
+					wl("		<name>" + pointNumber++ + "</name>");
+					//wl("		<description> VgAttrFeature </description>");
+					wl("		<Point>");
+					wl("			<coordinates> " + x + " , " + y + " , " + z
+							+ " </coordinates>");
+					wl("		</Point>");
+
+					
+					
+					wl("		<ExtendedData>");
+					
+					
+					for( int j=0;j<this.mPointFeatures.get(i).getAttributeNames().length;j++){
+						
+						wl("		<Data name=\"" + this.mPointFeatures.get(i).getAttributeNames()[j] + "\">");
+						wl("			<value>"+ this.mPointFeatures.get(i).getAttributeValue(this.mPointFeatures.get(i).getAttributeNames()[j]) + "</value>");
+
+						wl("		</Data>");
+
+					}
+					wl("		</ExtendedData>");
+					wl("	</Placemark>");
+
+				}
+			}
+
+			
+			if (!this.mMeasurementPaths.isEmpty()) {
+
+		
+				for (int i = 0; i < this.mMeasurementPaths.size(); i++) {
+					wl("	<Placemark>");
+					wl("		<name>" + pointNumber++ + "</name>");
+					wl("		<Point>");
+
+					wl("			<coordinates> "
+							+ this.mMeasurementPaths.get(i).getLocation(0).getX()+ " , "
+							+ this.mMeasurementPaths.get(i).getLocation(0).getY()+ " , "
+							+ this.mMeasurementPaths.get(i).getLocation(0).getZ() 
+							+							" </coordinates>");
+
+					wl("		</Point>");
+
+					if (this.mMeasurementPaths.get(i).getMeasurement(0).length >= 1) {
+						wl("		<ExtendedData>");
+						
+						Date dateFromLong = new Date(this.mMeasurementPaths.get(0).getTimeStamp(0) * 10000);
+						
+						wl("		<Data name=\"TimeStamp\">");
+						wl("			<value>" + dateFromLong + "</value>");
+						wl("		</Data>");
+
+						for (int j = 0; j < this.mMeasurementPaths.get(i).getMeasurement(0).length; j++) {
+							wl("		<Data name=\"" + j + "\">");
+							wl("			<value>"+ this.mMeasurementPaths.get(i).getMeasurement(0)[j] + "</value>");
+							wl("		</Data>");
+						}
+						wl("		</ExtendedData>");
+					}
+
+					wl("	</Placemark>");
+
+				}
+			}
+
+			
+			if (!this.mPointGeometries.isEmpty()) {
+				for (int i = 0; i < this.mPointGeometries.size(); i++) {
+					wl("	<Placemark>");
+					wl("		<name>" + pointNumber++ + "</name>");
+					//wl("		<description> VgPoint </description>");
+					wl("		<Point>");
+
+					wl("			<coordinates> "
+							+ this.mPointGeometries.get(i).getX() + " , "
+							+ this.mPointGeometries.get(i).getY() + " , "
+							+ this.mPointGeometries.get(i).getZ()
+							+ " </coordinates>");
+
+					wl("		</Point>");
+
+					wl("	</Placemark>");
+
+				}
+			}
+			wl("</Document>");
+			wl("</kml>");
+			mDoc.close();
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}
+	}
+}
