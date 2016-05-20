@@ -3,9 +3,9 @@ target
 .project
 .settings
 /bin/
-target
 log
 test/*
 !*.gitkeep/
 **/Thumbs.db
 nbactions.xml
+nb-configuration.xml

@@ -6,7 +6,7 @@ README file for the [52°North TerrainTools library][1]
 TerrainTools makes use of the existing 52°North Triturus module and shall offer various 
 tools for interactive terrain model display and analysis. TerrainTools will offer scene export facilities for scene descriptions as X3DOM. 
 
-The framework evolves during the Google Summer of Code 2016 program (participating organizations in this project: Bochum University of Applied Science and 52°North). 
+The framework evolves during the Google Summer of Code 2016 program (participating organizations in this project: Bochum University of Applied Sciences and 52°North). 
 
 ## Basic functionality:
 * visualize virtual terrain models
@@ -60,7 +60,6 @@ certain functionality added, let us know at:
 
  - Benno Schmidt (b.schmidt@52north.org)
  - Christian Danowski (christian.danowski@hs-bochum.de)
- - Martin May (m.may@52north.org)
  - Adhitya Kamakshidasan (a.kamakshidasan@52north.org)
 
 The 3D Community
