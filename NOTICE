@@ -7,6 +7,7 @@ This project includes:
   Codec under The Apache Software License, Version 2.0
   Commons Logging under The Apache Software License, Version 2.0
   Drive API v2-rev222-1.22.0 under The Apache Software License, Version 2.0
+  Eclipse ECJ under Eclipse Public License v1.0
   FindBugs-jsr305 under The Apache Software License, Version 2.0
   Google APIs Client Library for Java under The Apache Software License, Version 2.0
   Google HTTP Client Library for Java under The Apache Software License, Version 2.0
@@ -28,4 +29,8 @@ This project includes:
   Servlet Specification API under Apache License Version 2.0
   SLF4J API Module under MIT License
   terraintools under GNU General Public License, Version 2.0
+  tomcat-embed-core under Apache License, Version 2.0
+  tomcat-embed-el under Apache License, Version 2.0
+  tomcat-embed-jasper under Apache License, Version 2.0
+  tomcat-embed-logging-juli under Apache License, Version 2.0
 
