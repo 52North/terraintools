@@ -25,46 +25,27 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  * PARTICULAR PURPOSE. See the GNU General Public License for more details.
  */
-package org.n52.v3d.terraintools.dummy;
+package org.n52.v3d.terraintools.drive;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.google.api.client.googleapis.media.MediaHttpDownloader;
+import com.google.api.client.googleapis.media.MediaHttpDownloaderProgressListener;
 
 /**
- * Servlet implementation class DummyServlet
+ * The File Download Progress Listener.
+ *
+ * @author rmistry@google.com (Ravi)
  */
-public class DummyServlet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
+public class FileDownloadProgressListener implements MediaHttpDownloaderProgressListener {
 
-	/**
-	 * Default constructor.
-	 */
-	public DummyServlet() {
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
-	 *      response)
-	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		response.getWriter().append("Served at: ").append(request.getContextPath());
-	}
-
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
-	 *      response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		doGet(request, response);
-	}
-
+  @Override
+  public void progressChanged(MediaHttpDownloader downloader) {
+    switch (downloader.getDownloadState()) {
+      case MEDIA_IN_PROGRESS:
+        View.header2("Download is in progress: " + downloader.getProgress());
+        break;
+      case MEDIA_COMPLETE:
+        View.header2("Download is Complete!");
+        break;
+    }
+  }
 }

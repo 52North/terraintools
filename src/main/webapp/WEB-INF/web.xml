@@ -6,7 +6,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>CoordinatesServlet</servlet-name>
-        <url-pattern>/CoordinatesServlet</url-pattern>
+        <url-pattern>/*</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

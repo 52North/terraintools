@@ -4,12 +4,28 @@ Licensed under GNU General Public License, Version 2.0
 
 This project includes: 
   52North triturus 3d API under GNU Library or Lesser General Public License version 2.0 (LGPLv2)
+  Codec under The Apache Software License, Version 2.0
   Commons Logging under The Apache Software License, Version 2.0
+  Drive API v2-rev222-1.22.0 under The Apache Software License, Version 2.0
+  FindBugs-jsr305 under The Apache Software License, Version 2.0
+  Google APIs Client Library for Java under The Apache Software License, Version 2.0
+  Google HTTP Client Library for Java under The Apache Software License, Version 2.0
+  Google OAuth Client Library for Java under The Apache Software License, Version 2.0
+  Guava: Google Core Libraries for Java (JDK5 Backport) under The Apache Software License, Version 2.0
   Hamcrest All under New BSD License
   Hamcrest Core under New BSD License
+  HttpClient under Apache License
+  HttpCore under Apache License
+  Jackson 2 extensions to the Google HTTP Client Library for Java. under The Apache Software License, Version 2.0
+  Jackson-core under The Apache Software License, Version 2.0
+  Java 6 (and higher) extensions to the Google OAuth Client Library for Java. under The Apache Software License, Version 2.0
   Java(TM) EE 6 Web Specification APIs under CDDL + GPLv2 with classpath exception
+  Jetty extensions to the Google OAuth Client Library for Java. under The Apache Software License, Version 2.0
+  Jetty Server under Apache Software License - Version 2.0 or Eclipse Public License - Version 1.0
+  Jetty Utilities under Apache Software License - Version 2.0 or Eclipse Public License - Version 1.0
   JUnit under Eclipse Public License 1.0
   Log4j Implemented Over SLF4J under Apache Software Licenses
+  Servlet Specification API under Apache License Version 2.0
   SLF4J API Module under MIT License
   terraintools under GNU General Public License, Version 2.0
 

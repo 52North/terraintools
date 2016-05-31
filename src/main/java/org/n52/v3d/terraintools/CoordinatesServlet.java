@@ -27,6 +27,8 @@
  */
 package org.n52.v3d.terraintools;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -34,7 +36,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.n52.v3d.terraintools.drive.DriveSample;
 import org.n52.v3d.triturus.gisimplm.GmPoint;
+import org.n52.v3d.triturus.web.HttpStandardResponse;
 
 /**
  *
@@ -42,48 +46,134 @@ import org.n52.v3d.triturus.gisimplm.GmPoint;
  */
 public class CoordinatesServlet extends HttpServlet {
 
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        out.println("<html>");
+        out.println("<head>");
+        out.println("<title>Terrain Points</title>");
+        out.println("</head>");
+        out.println("<body>");
+        out.println("<form method='POST'>");
+        out.println("Project Name: <input type='text' name='project' value='GSoC_Testing'/>");
+        out.println("<br>");
+        out.println("<br>");
+        out.println("File Name: <input type='text' name='pointset' value='test.xyz'/>");
+        out.println("<br>");
+        out.println("<br>");
+        out.println("Enter your coordinates");
+        out.println("<br>");
+        out.println("<br>");
+        out.println("<input type='hidden' name='request' value='newPointS2et'>");
+        out.println("<textarea name='data' rows='5' cols='50'></textarea>");
+        out.println("<br>");
+        out.println("<br>");
+        out.println("<input type='submit' value='New Point Set'>");
+        out.println("</form>");
+        out.println("</body>");
+        out.println("</html>");
+    }
+
+    protected boolean validatePointSet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+
+        boolean valid = true;
+        String data = request.getParameter("data");
+        ArrayList<GmPoint> points = new ArrayList();
+        String[] lines = data.split("\\n");
+
+        for (int i = 0; i < lines.length && valid == true; i++) {
+            String line = lines[i];
+            line = line.trim();
+            line = line.replaceAll(" +", " ");
+            line = line.replaceAll(" ", ",");
+            try {
+                GmPoint point = new GmPoint(line);
+                points.add(point);
+            }
+            catch (Exception exception) {
+                out.println("<p style=\"color:red\"><b>An error was found on line "
+                        + i + ": " + line + "</b></p>");
+                valid = false;
+            }
+        }
+
+        if (!valid) {
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>CoordinatesServlet</title>");
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h2>The following points were found: </h2>");
+            out.println("<ul>");
+            for (GmPoint point : points) {
+                out.println("<li>" + point.toString() + "</li>");
+            }
+            out.println("</ul>");
+            out.println("<h2>Number of coordinate points: " + points.size() + "</h2>");
+            out.println("</body>");
+            out.println("</html>");
+        }
+        return valid;
+    }
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
+        //HttpStandardResponse httpStandardResponse = new HttpStandardResponse();
 
-        //HTML to be printed on-screen
-        out.println("<!DOCTYPE html>");
-        out.println("<html>");
-        out.println("<head>");
-        out.println("<title>CoordinatesServlet</title>");
-        out.println("</head>");
-        out.println("<body>");
+        String requestType = request.getParameter("request");
+        String data = request.getParameter("data");
+        String project = request.getParameter("project");
+        String pointsetName = request.getParameter("pointset");
 
-        String data = request.getParameter("textarea");
-        ArrayList<GmPoint> points = new ArrayList(); //Arraylist for storing all points
-        
-        String [] lines = data.split("\\n"); //Split the lines with respect to new-line
-        
-        for (int i=0; i<lines.length;i++) { //Go through each line
-            String line = lines[i]; //Get current line
-            line = line.trim(); // Remove leading and trailing spaces
-            line = line.replaceAll(" +", " "); // Remove extra spaces that may have been there in-between
-            line = line.replaceAll(" ", ","); //Convert space separated values to comma separated values
-            try {
-                GmPoint point = new GmPoint(line); //Convert line to a GmPoint!
-                points.add(point); //Add the point to the ArrayList
-            } catch (Exception exception) {
-                out.println("<p style=\"color:red\"><b>An error was found on line "
-                        + i + ": " + line + "</b></p>");
+        if ("newPointSet".equalsIgnoreCase(requestType)) {
+            if (validatePointSet(request, response)) {
+                File file = File.createTempFile("tmp-pointset", ".xyz");
+                FileWriter writer = new FileWriter(file);
+                writer.write(data);
+                writer.flush();
+                writer.close();
+
+                try {
+                    DriveSample driveSample = new DriveSample(project, pointsetName, file);
+                    // @Benno: Could we include this at org.n52.v3d.triturus.web?
+                    // @Adhitya: Is there a better way to give the XML back?
+                    response.setContentType("text/xml");
+                    out.println("<?xml version='1.0' encoding=\"UTF-8\" standalone=\"no\" ?>");
+                    //out.println("<?xml-stylesheet type=\"text/css\" href=\"terrainTools-style.css\"?>");
+                    out.println("<terrainToolsResponse>");
+                    out.println("  <userId>"+driveSample.getUserId()+"</userId>");
+                    out.println("  <applicationId>"+driveSample.getApplicationId()+"</applicationId>");
+                    out.println("  <projectId>"+driveSample.getProjectId()+"</projectId>");
+                    out.println("  <pointsetId>"+driveSample.getPointsetId()+"</pointsetId>");
+                    out.println("</terrainToolsResponse>");
+                    out.println();
+                }
+                catch (Exception exception) {
+                    out.println("Something bad happened with Google Drive! "+exception);
+                    //httpStandardResponse.sendException("Something bad happened with Google Drive! "+exception, response);
+                }
+
+                file.delete();
             }
         }
-
-        out.println("<h2>The following points were found: </h2>");
-        out.println("<ul>");
-        for (GmPoint point : points) {
-            out.println("<li>" + point.toString() + "</li>");
+        else {
+            out.println("Illegal REQUEST parameter value.");
+            //httpStandardResponse.sendException("Illegal REQUEST parameter value.", response);
         }
-        out.println("</ul>");
-        out.println("<h2>Number of coordinate points: " + points.size() + "</h2>");
-        out.println("</body>");
-        out.println("</html>");
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
     }
 
 }
