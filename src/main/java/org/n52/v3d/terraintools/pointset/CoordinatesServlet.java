@@ -25,7 +25,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  * PARTICULAR PURPOSE. See the GNU General Public License for more details.
  */
-package org.n52.v3d.terraintools;
+package org.n52.v3d.terraintools.pointset;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -37,8 +37,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.n52.v3d.terraintools.drive.DriveSample;
+import org.n52.v3d.triturus.examples.gridding.Gridding;
 import org.n52.v3d.triturus.gisimplm.GmPoint;
-import org.n52.v3d.triturus.web.HttpStandardResponse;
 
 /**
  *
@@ -55,11 +55,11 @@ public class CoordinatesServlet extends HttpServlet {
         out.println("<title>Terrain Points</title>");
         out.println("</head>");
         out.println("<body>");
-        out.println("<form method='POST'>");
+        out.println("<form action='points' method='POST'>");
         out.println("Project Name: <input type='text' name='project' value='GSoC_Testing'/>");
         out.println("<br>");
         out.println("<br>");
-        out.println("File Name: <input type='text' name='pointset' value='test.xyz'/>");
+        out.println("File Name: <input type='text' name='pointset' value='PointSet.xyz'/>");
         out.println("<br>");
         out.println("<br>");
         out.println("Enter your coordinates");
@@ -142,9 +142,8 @@ public class CoordinatesServlet extends HttpServlet {
                 writer.close();
 
                 try {
-                    DriveSample driveSample = new DriveSample(project, pointsetName, file);
-                    // @Benno: Could we include this at org.n52.v3d.triturus.web?
-                    // @Adhitya: Is there a better way to give the XML back?
+                    String tokenData = (String) request.getSession().getAttribute("token");
+                    DriveSample driveSample = new DriveSample(project, pointsetName, file, tokenData);
                     response.setContentType("text/xml");
                     out.println("<?xml version='1.0' encoding=\"UTF-8\" standalone=\"no\" ?>");
                     //out.println("<?xml-stylesheet type=\"text/css\" href=\"terrainTools-style.css\"?>");
@@ -152,9 +151,13 @@ public class CoordinatesServlet extends HttpServlet {
                     out.println("  <userId>"+driveSample.getUserId()+"</userId>");
                     out.println("  <applicationId>"+driveSample.getApplicationId()+"</applicationId>");
                     out.println("  <projectId>"+driveSample.getProjectId()+"</projectId>");
-                    out.println("  <pointsetId>"+driveSample.getPointsetId()+"</pointsetId>");
+                    out.println("  <pointsetId>"+driveSample.getObjectId()+"</pointsetId>");
                     out.println("</terrainToolsResponse>");
                     out.println();
+                    request.getSession().setAttribute("userId",driveSample.getUserId());
+                    request.getSession().setAttribute("applicationId",driveSample.getApplicationId());
+                    request.getSession().setAttribute("projectId",driveSample.getProjectId());
+                    request.getSession().setAttribute("pointsetId",driveSample.getObjectId());
                 }
                 catch (Exception exception) {
                     out.println("Something bad happened with Google Drive! "+exception);

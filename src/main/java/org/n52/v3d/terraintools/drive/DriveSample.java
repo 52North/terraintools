@@ -27,33 +27,28 @@
  */
 package org.n52.v3d.terraintools.drive;
 
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
-import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
-import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.googleapis.media.MediaHttpUploader;
 import com.google.api.client.http.FileContent;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.store.DataStoreFactory;
-import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpResponse;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.About;
 import com.google.api.services.drive.Drive.Files;
-import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import com.google.api.services.drive.model.ParentReference;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import static org.n52.v3d.terraintools.auth.Signin.CLIENT_ID;
+import static org.n52.v3d.terraintools.auth.Signin.CLIENT_SECRET;
+import static org.n52.v3d.terraintools.auth.Signin.JSON_FACTORY;
+import static org.n52.v3d.terraintools.auth.Signin.TRANSPORT;
 
 import org.n52.v3d.terraintools.helper.RelativePaths;
 
@@ -68,113 +63,37 @@ public class DriveSample {
     private static final String APPLICATION_NAME = "AdhityaTestingDrive";
     private static final String APPLICATION_FOLDER_NAME = "52n-terraintools";
     private static String APPLICATION_FOLDER_ID;
-    private static String PROJECT_FOLDER_NAME = "TestingProject";
+    public static String PROJECT_FOLDER_NAME = "TestingProject";
     private static String PROJECT_FOLDER_ID;
-    
+
     private static final String UPLOAD_FILE_PATH = RelativePaths.DATA_XYZ;
     private static java.io.File UPLOAD_FILE = new java.io.File(UPLOAD_FILE_PATH);
     private static String UPLOAD_FILE_NAME = UPLOAD_FILE.getName();
     private static String UPLOAD_FILE_ID;
-    
+
     private static String USER_ID;
-    
-    /**
-     * Directory to store user credentials.
-     */
-    private static final java.io.File DATA_STORE_DIR
-            = new java.io.File(System.getProperty("user.home"), ".store/drive_sample");
 
-    /**
-     * Global instance of the {@link DataStoreFactory}. The best practice is to
-     * make it a single globally shared instance across your application.
-     */
-    private static FileDataStoreFactory dataStoreFactory;
+    public static Drive drive;
 
-    /**
-     * Global instance of the HTTP transport.
-     */
-    private static HttpTransport httpTransport;
-
-    /**
-     * Global instance of the JSON factory.
-     */
-    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-
-    /**
-     * Global Drive API client.
-     */
-    private static Drive drive;
-
-    public DriveSample(String project, String pointsetName, java.io.File file) throws Exception {
-        init();
-        
-        About about = drive.about().get().execute();
-        USER_ID = about.getName();
-        
-        PROJECT_FOLDER_NAME = project;
-        UPLOAD_FILE_NAME = pointsetName;
-        UPLOAD_FILE = file;
-
-        View.header1("Retrieving application folder");
-        File applicationFolder = retrieveApplicationFolder();
-        System.out.println("Application Folder ID: " + APPLICATION_FOLDER_ID);
-
-        View.header1("Retrieving project folder");
-        File projectFolder = retrieveProjectFolder();
-        System.out.println("Project Folder ID: " + PROJECT_FOLDER_ID);
-
-        View.header1("Starting Resumable Media Upload");
-        File uploadedFile = uploadFile(projectFolder, true);
-
-        View.header1("Success!");
-    }
-    
-    public String getApplicationId(){
-        return APPLICATION_FOLDER_ID;
-    }
-    
-    public String getProjectId(){
-        return PROJECT_FOLDER_ID;
-    }
-    
-    public String getPointsetId(){
-        return UPLOAD_FILE_ID;
-    }
-    
-    public String getUserId(){
-        return USER_ID;
-    }
-
-    /**
-     * Authorizes the installed application to access user's protected data.
-     */
-    private static Credential authorize() throws Exception {
-        // load client secrets
-        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY,
-                new InputStreamReader(DriveSample.class.getResourceAsStream("/client_secrets.json")));
-        // set up authorization code flow
-        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
-                httpTransport, JSON_FACTORY, clientSecrets,
-                Collections.singleton(DriveScopes.DRIVE_FILE)).setDataStoreFactory(dataStoreFactory)
-                .build();
-        // authorize
-        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
-    }
-
-    public static void init() throws Exception {
-        httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-        dataStoreFactory = new FileDataStoreFactory(DATA_STORE_DIR);
-        // authorization
-        Credential credential = authorize();
-        // set up the global Drive instance
-        drive = new Drive.Builder(httpTransport, JSON_FACTORY, credential)
-                .setApplicationName(APPLICATION_NAME).build();
-    }
-
-    public static void main(String[] args) {
+    public DriveSample(String project, String fileName, java.io.File file, String tokenData) {
         try {
-            init();
-            // run commands
+            GoogleCredential credential = new GoogleCredential.Builder()
+                    .setJsonFactory(JSON_FACTORY)
+                    .setTransport(TRANSPORT)
+                    .setClientSecrets(CLIENT_ID, CLIENT_SECRET).build()
+                    .setFromTokenResponse(JSON_FACTORY.fromString(
+                                    tokenData, GoogleTokenResponse.class));
+            drive = new Drive.Builder(TRANSPORT, JSON_FACTORY, credential)
+                    .setApplicationName(APPLICATION_NAME)
+                    .build();
+
+            About about = drive.about().get().execute();
+            USER_ID = about.getName();
+
+            PROJECT_FOLDER_NAME = project;
+            UPLOAD_FILE_NAME = fileName;
+            UPLOAD_FILE = file;
+
             View.header1("Retrieving application folder");
             File applicationFolder = retrieveApplicationFolder();
             System.out.println("Application Folder ID: " + APPLICATION_FOLDER_ID);
@@ -191,6 +110,22 @@ public class DriveSample {
         catch (Exception exception) {
             System.err.println(exception);
         }
+    }
+
+    public String getApplicationId() {
+        return APPLICATION_FOLDER_ID;
+    }
+
+    public String getProjectId() {
+        return PROJECT_FOLDER_ID;
+    }
+
+    public String getObjectId() {
+        return UPLOAD_FILE_ID;
+    }
+
+    public String getUserId() {
+        return USER_ID;
     }
 
     // https://developers.google.com/drive/v2/reference/files/list#examples
@@ -271,4 +206,33 @@ public class DriveSample {
         UPLOAD_FILE_ID = file.getId();
         return file;
     }
+
+    public static InputStream downloadFile(Drive service, String fileId) {
+
+        try {
+            File file = drive.files().get(fileId).execute();
+            System.out.println("Title: " + file.getTitle());
+            if (file.getDownloadUrl() != null && file.getDownloadUrl().length() > 0) {
+                HttpResponse resp
+                        = drive.getRequestFactory().buildGetRequest(new GenericUrl(file.getDownloadUrl()))
+                        .execute();
+                return resp.getContent();
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String getFileName(Drive service, String fileId) throws IOException {
+        try {
+            File file = drive.files().get(fileId).execute();
+            return file.getTitle();
+        }
+        catch (Exception exception) {
+            return null;
+        }
+    }
+
 }

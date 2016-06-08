@@ -2,11 +2,43 @@
 <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
     <servlet>
         <servlet-name>CoordinatesServlet</servlet-name>
-        <servlet-class>org.n52.v3d.terraintools.CoordinatesServlet</servlet-class>
+        <servlet-class>org.n52.v3d.terraintools.pointset.CoordinatesServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ElevationServlet</servlet-name>
+        <servlet-class>org.n52.v3d.terraintools.pointset.ElevationServlet</servlet-class>
+    </servlet>
+        <servlet>
+        <servlet-name>VisualizeServlet</servlet-name>
+        <servlet-class>org.n52.v3d.terraintools.pointset.VisualizeServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ConnectServlet</servlet-name>
+        <servlet-class>org.n52.v3d.terraintools.auth.ConnectServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>PeopleServlet</servlet-name>
+        <servlet-class>org.n52.v3d.terraintools.auth.PeopleServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>CoordinatesServlet</servlet-name>
-        <url-pattern>/*</url-pattern>
+        <url-pattern>/points</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ConnectServlet</servlet-name>
+        <url-pattern>/connect</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PeopleServlet</servlet-name>
+        <url-pattern>/people</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ElevationServlet</servlet-name>
+        <url-pattern>/elevation</url-pattern>
+    </servlet-mapping>
+        <servlet-mapping>
+        <servlet-name>VisualizeServlet</servlet-name>
+        <url-pattern>/visualize</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
