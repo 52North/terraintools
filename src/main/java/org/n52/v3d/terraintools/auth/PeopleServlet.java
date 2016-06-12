@@ -1,9 +1,9 @@
 /**
- * Copyright (C) 2016-2016 52°North Initiative for Geospatial Open Source
+ * ﻿Copyright (C) 2016-2016 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License version 2 as publishedby the Free
+ * the terms of the GNU General Public License version 2 as published by the Free
  * Software Foundation.
  *
  * If the program is linked with libraries which are licensed under one of the
@@ -25,46 +25,37 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  * PARTICULAR PURPOSE. See the GNU General Public License for more details.
  */
-package org.n52.v3d.terraintools.dummy;
+package org.n52.v3d.terraintools.auth;
 
 import java.io.IOException;
-
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import static org.n52.v3d.terraintools.auth.Signin.GSON;
 
-/**
- * Servlet implementation class DummyServlet
- */
-public class DummyServlet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
+public class PeopleServlet extends HttpServlet {
 
-	/**
-	 * Default constructor.
-	 */
-	public DummyServlet() {
-		// TODO Auto-generated constructor stub
-	}
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("application/json");
 
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
-	 *      response)
-	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		response.getWriter().append("Served at: ").append(request.getContextPath());
-	}
-
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
-	 *      response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		doGet(request, response);
-	}
-
+        String tokenData = (String) request.getSession().getAttribute("token");
+        if (tokenData == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().print(GSON.toJson("Current user not connected."));
+            return;
+        }
+        try {
+            RequestDispatcher rd = request.getRequestDispatcher("points");  
+            rd.forward(request, response);
+        }
+        catch (IOException e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().print(GSON.toJson("Failed to read data from Google. "
+                    + e.getMessage()));
+        }
+    }
 }
