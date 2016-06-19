@@ -37,6 +37,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -46,6 +47,8 @@ import org.apache.commons.io.IOUtils;
 import org.n52.v3d.terraintools.drive.DriveSample;
 import org.n52.v3d.triturus.examples.gridding.Gridding;
 import org.n52.v3d.triturus.gisimplm.GmPoint;
+import org.n52.v3d.triturus.gisimplm.GmSimpleElevationGrid;
+import org.n52.v3d.triturus.vgis.VgPoint;
 
 /**
  *
@@ -131,10 +134,12 @@ public class VisualizeServlet extends HttpServlet {
         String visualizationPath = pointsetFile.getParent() + pointsetFile.separator + visualizationName;
 
         Gridding gridding = new Gridding();
-        gridding.setInputPath(pointsetPath);
-        gridding.setOutputPath(visualizationPath);
+        gridding.setInputFile(pointsetPath);
+        gridding.setOutputFile(visualizationPath);
         gridding.setOutputFormat(format);
-        gridding.performGridding();
+        List<VgPoint> points = gridding.readPointCloud();
+        GmSimpleElevationGrid elevGrid = gridding.performGridding(points);
+        gridding.writeOutputFile(elevGrid);
         
         File elevationFile = new File(visualizationPath);
 

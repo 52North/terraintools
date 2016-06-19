@@ -36,6 +36,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -45,7 +46,9 @@ import org.apache.commons.io.IOUtils;
 import org.n52.v3d.terraintools.drive.DriveSample;
 import org.n52.v3d.triturus.examples.gridding.Gridding;
 import org.n52.v3d.triturus.gisimplm.GmPoint;
+import org.n52.v3d.triturus.gisimplm.GmSimpleElevationGrid;
 import org.n52.v3d.triturus.gisimplm.IoElevationGridWriter;
+import org.n52.v3d.triturus.vgis.VgPoint;
 
 /**
  *
@@ -121,10 +124,12 @@ public class ElevationServlet extends HttpServlet {
         String elevationPath = pointsetFile.getParent() + pointsetFile.separator + elevationName;
 
         Gridding gridding = new Gridding();
-        gridding.setInputPath(pointsetPath);
-        gridding.setOutputPath(elevationPath);
+        gridding.setInputFile(pointsetPath);
+        gridding.setOutputFile(elevationPath);
         gridding.setOutputFormat(IoElevationGridWriter.ARCINFO_ASCII_GRID);
-        gridding.performGridding();
+        List<VgPoint> points = gridding.readPointCloud();
+        GmSimpleElevationGrid elevGrid = gridding.performGridding(points);
+        gridding.writeOutputFile(elevGrid);
         
         File elevationFile = new File(elevationPath);
 
