@@ -45,6 +45,7 @@ import org.apache.commons.io.IOUtils;
 import org.n52.v3d.terraintools.drive.DriveSample;
 import org.n52.v3d.triturus.examples.gridding.Gridding;
 import org.n52.v3d.triturus.gisimplm.GmPoint;
+import org.n52.v3d.triturus.gisimplm.IoElevationGridWriter;
 
 /**
  *
@@ -122,6 +123,7 @@ public class ElevationServlet extends HttpServlet {
         Gridding gridding = new Gridding();
         gridding.setInputPath(pointsetPath);
         gridding.setOutputPath(elevationPath);
+        gridding.setOutputFormat(IoElevationGridWriter.ARCINFO_ASCII_GRID);
         gridding.performGridding();
         
         File elevationFile = new File(elevationPath);

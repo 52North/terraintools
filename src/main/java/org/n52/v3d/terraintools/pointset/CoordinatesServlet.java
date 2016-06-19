@@ -70,6 +70,7 @@ public class CoordinatesServlet extends HttpServlet {
         out.println("<br>");
         out.println("<br>");
         out.println("<input type='submit' value='New Point Set'>");
+        out.println("<p><a target=\"_blank\" href=\"https://raw.githubusercontent.com/52North/terraintools/master/data/test.xyz\">Here</a> is a sample file!</p>");
         out.println("</form>");
         out.println("</body>");
         out.println("</html>");
