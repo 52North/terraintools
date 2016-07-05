@@ -66,8 +66,8 @@ public class FloodingServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        String outputFlooding = createFlooding("data/test.asc");
-        combineFlooding("data/test.asc", outputFlooding);
+        String outputFlooding = createFlooding("data/test.html");
+        combineFlooding("data/test.html", outputFlooding);
         InputStream inputStream = new FileInputStream("data/result.html");
         StringWriter writer = new StringWriter();
         IOUtils.copy(inputStream, writer);
@@ -78,7 +78,7 @@ public class FloodingServlet extends HttpServlet {
     protected String createFlooding(String initialGrid) {
         String outputFile = "data/test_flood.asc";
         IoElevationGridReader reader = new IoElevationGridReader(
-                IoElevationGridReader.ARCINFO_ASCII_GRID);
+                IoElevationGridReader.X3DOM);
         IoElevationGridWriter writer = new IoElevationGridWriter(
                 IoElevationGridWriter.ARCINFO_ASCII_GRID);
 
@@ -116,12 +116,15 @@ public class FloodingServlet extends HttpServlet {
     }
 
     private void combineFlooding(String initialGrid, String floodedGrid) {
-        IoElevationGridReader reader = new IoElevationGridReader("ArcIGrd");
+        
+        IoElevationGridReader reader1 = new IoElevationGridReader(IoElevationGridReader.X3DOM) ;
+        IoElevationGridReader reader2 = new IoElevationGridReader("ArcIGrd");
 
         try {
             // Read elevation grids:
-            GmSimpleElevationGrid grid1 = reader.readFromFile(initialGrid),
-                    grid2 = reader.readFromFile(floodedGrid);
+            GmSimpleElevationGrid grid1 = reader1.readFromFile(initialGrid);
+            
+            GmSimpleElevationGrid grid2 = reader2.readFromFile(floodedGrid);
 
             // Define marker symbol:
             T3dSymbolDef sym = new T3dSphere(100.);
@@ -181,7 +184,7 @@ public class FloodingServlet extends HttpServlet {
         ((MpSimpleHypsometricColor) colMapper).setPalette(elev, cols, true);
         return colMapper;
     }
-
+   
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
