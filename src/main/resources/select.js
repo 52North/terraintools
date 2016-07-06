@@ -59,9 +59,9 @@ function getGridPosition(){
 }
 
 function getWaterLevel(){
-	var value = document.getElementById('situationValue');
-	if(this.situationType == 'absolute'){
-		return parseFloat(value) + array[getGridPositionX()][getGridPositionY()];
+	var value = document.getElementById('situationValue').value;
+	if (document.getElementById('absoluteRadio').checked) {
+	  return parseFloat(value) + array[getGridPositionX()][getGridPositionY()];
 	}
 	else{
 		return parseFloat(value);
@@ -72,8 +72,13 @@ function flood(){
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 	  if (xhttp.readyState == 4 && xhttp.status == 200) {
-		document.write(xhttp.responseText);
-        document.close();
+		    var win=window.open('about:blank');
+			with(win.document)
+			{
+			  open();
+			  write(xhttp.responseText);
+			  close();
+			}
 	  }
 	};
 	xhttp.open("GET", '/flooding?position='+getGridPosition()+'&waterlevel='+getWaterLevel(), true);
@@ -108,8 +113,8 @@ window.onload = function() {
 			<div id="gridValues"></div>\
 			<div id="situation" style="display:none;">\
 				Z Value: <input type="text" id="situationValue" size="10" value="5"><br>\
-				<input type="radio" name="situationType" onclick="check(this.value)" value="relative" checked>Relative\
-				<input type="radio" name="situationType" onclick="check(this.value)" value="absolute">Absolute<br>\
+				<input type="radio" id="relativeRadio" name="situationType" onclick="check(this.value)" value="relative" checked>Relative\
+				<input type="radio" id="absoluteRadio" name="situationType" onclick="check(this.value)" value="absolute">Absolute<br>\
 				<br>\
 				<input type="submit" value="Show Flooding" onclick="flood()">\
 			</div>\

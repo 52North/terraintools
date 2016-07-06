@@ -209,6 +209,8 @@ public class FloodingServlet extends HttpServlet {
         point_x = Integer.parseInt(point[0]);
         point_y = Integer.parseInt(point[1]);
         
+        System.out.println(point_x+" "+point_y+" "+waterLevel);
+        
         String visualizationId = (String) request.getSession().getAttribute("visualizationId");
 
         InputStream inputStream = DriveSample.downloadFile(DriveSample.drive, visualizationId);
