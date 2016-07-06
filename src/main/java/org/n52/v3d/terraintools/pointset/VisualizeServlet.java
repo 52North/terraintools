@@ -3,27 +3,27 @@
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License version 2 as published by the Free
- * Software Foundation.
+ * the terms of the GNU General Public License version 2 as published by the
+ * Free Software Foundation.
  *
  * If the program is linked with libraries which are licensed under one of the
  * following licenses, the combination of the program with the linked library is
  * not considered a "derivative work" of the program:
  *
- *     - Apache License, version 2.0
- *     - Apache Software License, version 1.0
- *     - GNU Lesser General Public License, version 3
- *     - Mozilla Public License, versions 1.0, 1.1 and 2.0
- *     - Common Development and Distribution License (CDDL), version 1.0
+ * - Apache License, version 2.0 - Apache Software License, version 1.0 - GNU
+ * Lesser General Public License, version 3 - Mozilla Public License, versions
+ * 1.0, 1.1 and 2.0 - Common Development and Distribution License (CDDL),
+ * version 1.0
  *
- * Therefore the distribution of the program linked with libraries licensed under
- * the aforementioned licenses, is permitted by the copyright holders if the
- * distribution is compliant with both the GNU General Public License version 2
- * and the aforementioned licenses.
+ * Therefore the distribution of the program linked with libraries licensed
+ * under the aforementioned licenses, is permitted by the copyright holders if
+ * the distribution is compliant with both the GNU General Public License
+ * version 2 and the aforementioned licenses.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
  */
 package org.n52.v3d.terraintools.pointset;
 
@@ -42,6 +42,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.n52.v3d.terraintools.drive.DriveSample;
@@ -49,6 +57,9 @@ import org.n52.v3d.triturus.examples.gridding.Gridding;
 import org.n52.v3d.triturus.gisimplm.GmPoint;
 import org.n52.v3d.triturus.gisimplm.GmSimpleElevationGrid;
 import org.n52.v3d.triturus.vgis.VgPoint;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 
 /**
  *
@@ -118,11 +129,11 @@ public class VisualizeServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        
+
         String pointsetId = request.getParameter("pointset");
         String visualizationName = request.getParameter("visualization");
         String format = request.getParameter("format");
-        
+
         InputStream inputStream = DriveSample.downloadFile(DriveSample.drive, pointsetId);
 
         File pointsetFile = File.createTempFile("tmp-pointset", ".xyz");
@@ -142,10 +153,63 @@ public class VisualizeServlet extends HttpServlet {
         gridding.writeOutputFile(elevGrid);
         
         File elevationFile = new File(visualizationPath);
+        
+        // Allow clicking option
+        String content = FileUtils.readFileToString(elevationFile);
+        content = content.replace("<Shape>", "<Shape onClick=\"handleClick(event)\">");
+        content = content.replace("</body>", 
+            "</body>\n" +
+            "<script type=\"text/javascript\" src=\"https://rawgit.com/kamakshidasan/terraintools/master/src/main/resources/select.js\"></script>\n" +
+            "<div id=\"insert\"></div>"    
+        );
+        FileUtils.writeStringToFile(elevationFile, content);
+        
+        // Such a waste of time! :'(
+        /*try {
+            DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+            domFactory.setIgnoringComments(true);
+            DocumentBuilder builder = domFactory.newDocumentBuilder();
+            org.w3c.dom.Document doc = builder.parse(new File(visualizationPath));
+            //doc.getDocumentElement().normalize();
+
+            NodeList nodes = doc.getElementsByTagName("head");
+
+            Text a = doc.createTextNode("");
+            Element p = doc.createElement("script");
+            p.setAttribute("type", "text/javascript");
+            p.setAttribute("src", "https://rawgit.com/kamakshidasan/triturus/master/src/main/resources/js/select.js");
+            p.appendChild(a);
+
+            nodes.item(0).appendChild(p);
+            
+            nodes = doc.getElementsByTagName("body");
+
+            a = doc.createTextNode("");
+            p = doc.createElement("div");
+            p.setAttribute("id", "insert");
+            p.appendChild(a);
+
+            nodes.item(0).appendChild(p);
+
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+
+            StreamResult result = new StreamResult(new StringWriter());
+            DOMSource source = new DOMSource(doc);
+            transformer.transform(source, result);
+
+            String xmlOutput = result.getWriter().toString();
+            FileUtils.writeStringToFile(elevationFile, xmlOutput);
+            System.out.println(xmlOutput);
+        }
+        catch (Exception exception) {
+            out.println(exception);
+        } */   
 
         String tokenData = (String) request.getSession().getAttribute("token");
         DriveSample driveSample = new DriveSample(DriveSample.PROJECT_FOLDER_NAME, visualizationName, elevationFile, tokenData);
-        
+
         response.setContentType("text/html");
         String visualizationId = driveSample.getObjectId();
         inputStream = DriveSample.downloadFile(DriveSample.drive, visualizationId);
@@ -154,16 +218,16 @@ public class VisualizeServlet extends HttpServlet {
         String x3dom = writer.toString();
         out.println(x3dom);
         /*response.setContentType("text/xml");
-        out.println("<?xml version='1.0' encoding=\"UTF-8\" standalone=\"no\" ?>");
-        //out.println("<?xml-stylesheet type=\"text/css\" href=\"terrainTools-style.css\"?>");
-        out.println("<terrainToolsResponse>");
-        out.println("  <userId>" + driveSample.getUserId() + "</userId>");
-        out.println("  <applicationId>" + driveSample.getApplicationId() + "</applicationId>");
-        out.println("  <projectId>" + driveSample.getProjectId() + "</projectId>");
-        out.println("  <pointsetId>" + pointsetId + "</pointsetId>");
-        out.println("  <visualizationId>" + driveSample.getObjectId() + "</visualizationId>");
-        out.println("</terrainToolsResponse>");
-        */
+         out.println("<?xml version='1.0' encoding=\"UTF-8\" standalone=\"no\" ?>");
+         //out.println("<?xml-stylesheet type=\"text/css\" href=\"terrainTools-style.css\"?>");
+         out.println("<terrainToolsResponse>");
+         out.println("  <userId>" + driveSample.getUserId() + "</userId>");
+         out.println("  <applicationId>" + driveSample.getApplicationId() + "</applicationId>");
+         out.println("  <projectId>" + driveSample.getProjectId() + "</projectId>");
+         out.println("  <pointsetId>" + pointsetId + "</pointsetId>");
+         out.println("  <visualizationId>" + driveSample.getObjectId() + "</visualizationId>");
+         out.println("</terrainToolsResponse>");
+         */
         request.getSession().setAttribute("visualizationId", driveSample.getObjectId());
         pointsetFile.delete();
         elevationFile.delete();

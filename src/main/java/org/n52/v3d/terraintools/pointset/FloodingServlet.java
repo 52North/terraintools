@@ -29,9 +29,11 @@ package org.n52.v3d.terraintools.pointset;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import javax.servlet.ServletException;
@@ -61,13 +63,17 @@ import org.n52.v3d.triturus.vscene.MultiTerrainScene;
  * @author Adhitya Kamakshidasan
  */
 public class FloodingServlet extends HttpServlet {
+    
+    private String floodingPath = ""; //data/test.html
+    private int point_x = 0, point_y = 0;
+    private double waterLevel = 10.0;
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        String outputFlooding = createFlooding("data/test.html");
-        combineFlooding("data/test.html", outputFlooding);
+        String outputFlooding = createFlooding(floodingPath);
+        combineFlooding(floodingPath, outputFlooding);
         InputStream inputStream = new FileInputStream("data/result.html");
         StringWriter writer = new StringWriter();
         IOUtils.copy(inputStream, writer);
@@ -95,10 +101,8 @@ public class FloodingServlet extends HttpServlet {
             VgPoint seedPoint = new GmPoint(srcGrd.envelope().getCenterPoint());
             // Set water-level 2 meters above ground:
             seedPoint.setZ(
-                    srcGrd.getValue(
-                            srcGrd.numberOfRows() / 2,
-                            srcGrd.numberOfColumns() / 2)
-                    + 10);
+                    srcGrd.getValue(point_x,point_y)
+                    + waterLevel);
             
             System.out.println("Information: "+srcGrd.numberOfRows() / 2 + " "+ srcGrd.numberOfColumns() / 2 + " "+ srcGrd.getValue(srcGrd.numberOfRows() / 2,srcGrd.numberOfColumns() / 2));
             System.out.println("Seed: " + seedPoint);
@@ -195,6 +199,27 @@ public class FloodingServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        
+        String position = request.getParameter("position");
+        waterLevel = Double.parseDouble(request.getParameter("waterlevel"));
+        
+        String[] point = position.split(",");
+        point_x = Integer.parseInt(point[0]);
+        point_y = Integer.parseInt(point[1]);
+        
+        String visualizationId = (String) request.getSession().getAttribute("visualizationId");
+
+        InputStream inputStream = DriveSample.downloadFile(DriveSample.drive, visualizationId);
+        
+        File floodingFile = File.createTempFile("tmp-flooding", ".html");
+        OutputStream outputStream = new FileOutputStream(floodingFile);
+        IOUtils.copy(inputStream, outputStream);
+        outputStream.close();
+        
+        floodingPath = floodingFile.getPath();
+        
         processRequest(request, response);
     }
 
