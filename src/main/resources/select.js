@@ -71,7 +71,7 @@ function getWaterLevel(){
 function flood(){
 	$.ajax({
 		type: 'GET',
-		url: '/flooding?position='getGridPosition()+'&waterlevel='+getWaterLevel(),
+		url: '/flooding?position='+getGridPosition()+'&waterlevel='+getWaterLevel(),
 		contentType: 'application/octet-stream; charset=utf-8',
 		success: function (result) {
 			// Currently nothing has to happen!
