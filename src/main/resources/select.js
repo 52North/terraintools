@@ -69,6 +69,7 @@ function getWaterLevel(){
 }
 
 function flood(){
+	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 	  if (xhttp.readyState == 4 && xhttp.status == 200) {
 		document.write(xhttp.responseText);
