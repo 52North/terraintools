@@ -3,13 +3,15 @@ function roundWithTwoDecimals(value) {
 }
 
 function handleClick(event) {
-    var coordinates = event.hitPnt;
+    this.coordinates = event.hitPnt;
     document.getElementById('coordX').innerHTML = roundWithTwoDecimals(coordinates[0]);
     document.getElementById('coordY').innerHTML = roundWithTwoDecimals(coordinates[1]);
     document.getElementById('coordZ').innerHTML = roundWithTwoDecimals(coordinates[2]);
     document.getElementById('gridX').innerHTML = roundWithTwoDecimals(coordinates[0]/cellColumnSize);
     document.getElementById('gridY').innerHTML = roundWithTwoDecimals(coordinates[1]/transform[1]);
     document.getElementById('gridZ').innerHTML = roundWithTwoDecimals(coordinates[2]/cellRowSize);
+	
+	this.currentValue = roundWithTwoDecimals(coordinates[1]/transform[1]);
     findNeighbours(event.hitPnt)
 }
 
@@ -22,11 +24,16 @@ function findNeighbours(point) {
     var floor_i = Math.floor(i);
     var floor_j = Math.floor(j);
 
+	this.neighbours =  [(array[floor_i][floor_j]),
+						(array[ceil_i][floor_j]),
+						(array[floor_i][ceil_j]),
+						(array[ceil_i][ceil_j])];
+	
     document.getElementById("gridValues").innerHTML = "<p>" +
-        "array[" + floor_i + "][" + floor_j + "] = " + (array[floor_i][floor_j]).toFixed(2) + "<br>" +
-        "array[" + ceil_i + "][" + floor_j + "] = " + (array[ceil_i][floor_j]).toFixed(2) + "<br>" +
-        "array[" + floor_i + "][" + ceil_j + "] = " + (array[floor_i][ceil_j]).toFixed(2) + "<br>" +
-        "array[" + ceil_i + "][" + ceil_j + "] = " + (array[ceil_i][ceil_j]).toFixed(2) + "</p><br>";
+        "array[" + floor_i + "][" + floor_j + "] = " + neighbours[0] + "<br>" +
+        "array[" + ceil_i + "][" + floor_j + "] = " + neighbours[1] + "<br>" +
+        "array[" + floor_i + "][" + ceil_j + "] = " + neighbours[2] + "<br>" +
+        "array[" + ceil_i + "][" + ceil_j + "] = " + neighbours[3] + "</p><br>";
     
     document.getElementById("situation").style.display = "block";
 }
@@ -37,6 +44,41 @@ function check(situationType) {
 
 function getTransformScale() {
 	this.transform = document.getElementById("elevationTransform").scale.split(" ");
+}
+
+function getGridPositionX(){
+	return parseInt(coordinates[2]/cellRowSize);
+}
+
+function getGridPositionY(){
+	return parseInt(coordinates[0]/cellColumnSize);
+}
+
+function getGridPosition(){
+	return getGridPositionX()+","+getGridPositionY();
+}
+
+function getWaterLevel(){
+	var value = document.getElementById('situationValue');
+	if(this.situationType == 'absolute'){
+		return parseFloat(value) + array[getGridPositionX()][getGridPositionY()];
+	}
+	else{
+		return parseFloat(value);
+	}
+}
+
+function flood(){
+	$.ajax({
+		type: 'GET',
+		url: '/flooding?position='getGridPosition()+'&waterlevel='+getWaterLevel(),
+		contentType: 'application/octet-stream; charset=utf-8',
+		success: function (result) {
+			// Currently nothing has to happen!
+		},
+		processData: false,
+		data: code
+	});
 }
 
 window.onload = function() {
