@@ -69,16 +69,14 @@ function getWaterLevel(){
 }
 
 function flood(){
-	$.ajax({
-		type: 'GET',
-		url: '/flooding?position='+getGridPosition()+'&waterlevel='+getWaterLevel(),
-		contentType: 'application/octet-stream; charset=utf-8',
-		success: function (result) {
-			// Currently nothing has to happen!
-		},
-		processData: false,
-		data: code
-	});
+	xhttp.onreadystatechange = function() {
+	  if (xhttp.readyState == 4 && xhttp.status == 200) {
+		document.write(xhttp.responseText);
+        document.close();
+	  }
+	};
+	xhttp.open("GET", '/flooding?position='+getGridPosition()+'&waterlevel='+getWaterLevel(), true);
+	xhttp.send();
 }
 
 window.onload = function() {
