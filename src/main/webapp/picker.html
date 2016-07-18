@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
@@ -13,10 +12,12 @@
       var clientId = "948086675144-fq6u0ajvdi4mp8bt2ovh4p87mmrpesg7.apps.googleusercontent.com";
 
       // Scope to use to access user's documents.
-      var scope = ['https://www.googleapis.com/auth/drive.readonly'];
+      var scope = ['https://www.googleapis.com/auth/drive'];
 
       var pickerApiLoaded = false;
       var oauthToken;
+	  
+	  var picker = null;
 
       // Use the API Loader script to load google.picker and gapi.auth.
       function onApiLoad() {
@@ -40,6 +41,7 @@
       }
 
       function handleAuthResult(authResult) {
+        console.log(authResult);
         if (authResult && !authResult.error) {
           oauthToken = authResult.access_token;
           createPicker();
@@ -49,13 +51,13 @@
       // Create and render a Picker object for picking user Documents.
       function createPicker() {
         if (pickerApiLoaded && oauthToken) {
-          var picker = new google.picker.PickerBuilder().
+          picker = new google.picker.PickerBuilder().
               addView(google.picker.ViewId.DOCS).
               setOAuthToken(oauthToken).
               setDeveloperKey(developerKey).
               setCallback(pickerCallback). // Should create query over here
               build();
-          picker.setVisible(true);
+          picker.setVisible(false);
         }
       }
 
@@ -69,6 +71,12 @@
         var message = 'You picked: ' + url;
         document.getElementById('result').innerHTML = message;
       }
+	  
+	  // Make the picker visible
+	  function showPicker(){
+		picker.setVisible(true);
+	  }
+	  
     </script>
   </head>
   <body>
@@ -76,5 +84,6 @@
 
     <!-- The Google API Loader script. -->
     <script type="text/javascript" src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>
+    <button onclick="showPicker()">Click me</button>
   </body>
 </html>

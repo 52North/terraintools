@@ -1,54 +1,54 @@
 <html xmlns='http://www.w3.org/1999/xhtml'>
 <head>
-<link rel="stylesheet" type="text/css" href="https://rawgit.com/kamakshidasan/triturus/master/src/main/resources/css/x3dom.css" />
-<script type="text/javascript" src="https://rawgit.com/kamakshidasan/triturus/master/src/main/resources/js/x3dom-full.js"></script>
+<link rel="stylesheet" type="text/css" href="x3dom.css" />
+<script type="text/javascript" src="x3dom-full.js"></script>
 <script>
-x3dom.Viewarea.prototype.onDoubleClick = function (x, y)
-{
+x3dom.Viewarea.prototype.onDoubleClick = function (x, y){
 	var at = this._pick;
 	console.log(at['x'] + " "+ at['y'] + " " + at['z']);
 	var point = [at['x'] , at['y'] , at['z']];
 	findNeighbours(point);
 	console.log(getGridPosition());
 	addNode(point);
-	// console.log(createSphere(point));
 }
 
-    function addNode(point)
-    {		
-		x = point[0];
-		y = point[1];
-		z = point[2];
-		
-        var t = document.createElement('Transform');
-        t.setAttribute("translation", x + " " + y + " " + z );
-        
-        var s = document.createElement('Shape');
-        t.appendChild(s);
-		var a = document.createElement('Appearance');
-		s.appendChild(a);
-		var m = document.createElement('Material');
-		m.setAttribute('diffuseColor','1 0 0');
-		m.setAttribute('specularColor','0.7 0.7 0.7');
-		m.setAttribute('shininess','0.5')
-		a.appendChild(m);
-       	var b = document.createElement('Torus');
-		b.setAttribute ('innerRadius','0.5');
-		b.setAttribute ('outerRadius','1.1')
-
-		s.appendChild(b);
- 		b.setAttribute('onclick',"alert('Hit obj at '+event.hitPnt);");
-
-        var ot = document.getElementById('root');
-        ot.appendChild(t);
-        
-        return false;
-    };
+function addNode(point){		
+	var x = point[0];
+	var y = point[1];
+	var z = point[2];
+	
+	var transform = document.createElement('Transform');
+	transform.setAttribute("translation", x + " " + y + " " + z );
+	
+	var shape = document.createElement('Shape');
+	transform.appendChild(shape);
+	
+	var appearance = document.createElement('Appearance');
+	shape.appendChild(appearance);
+	
+	var material = document.createElement('Material');
+	material.setAttribute('diffuseColor','1 0 0');
+	material.setAttribute('specularColor','0.7 0.7 0.7');
+	material.setAttribute('shininess','0.5');
+	
+	appearance.appendChild(material);
+	
+	var sphere = document.createElement('Sphere');
+	sphere.setAttribute ('radius','100');
+	
+	shape.appendChild(sphere);
+	
+	var root = document.getElementById('root');
+	root.appendChild(transform);
+	
+	return false;
+};
 </script>
 </head>
 <body>
 <x3d id="boxes" profile='Immersive' height='400px' width='400px' showLog='true'>
   <scene id="root">
+	<Viewpoint description="Top view" orientation="1 0 0 -1.57" position="2000.0 11105.5 1500.0" centerOfRotation="2000.0 1110.55 1500.0"></Viewpoint>
 	<MetadataDouble DEF="origin" name="elevation_origin" value='3531875.0, 5504025.0'></MetadataDouble>
 	<navigationInfo type='"EXAMINE" "WALK" "FLY" "ANY"'></navigationInfo>
 	<transform id="elevationTransform" scale="1 7.0 1">
@@ -64,6 +64,6 @@ x3dom.Viewarea.prototype.onDoubleClick = function (x, y)
   </scene>
 </x3d>
 </body>
-<script type="text/javascript" src="https://rawgit.com/kamakshidasan/terraintools/master/src/main/resources/select.js"></script>
+<script type="text/javascript" src="select.js"></script>
 <div id="insert"></div>
 </html>
