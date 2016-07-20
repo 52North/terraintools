@@ -56,15 +56,16 @@ function createPicker() {
 
 // A simple callback implementation.
 function pickerCallback(data) {
-	var url = 'nothing';
+	var document = null;
 	if (data[google.picker.Response.ACTION] === google.picker.Action.PICKED) {
-		var doc = data[google.picker.Response.DOCUMENTS][0];
-		console.log(doc.id);
-		console.log(doc.parentId);
-		url = doc[google.picker.Document.URL];
+		document = data[google.picker.Response.DOCUMENTS][0];
 	}
-	var message = 'You picked: ' + url;
-	document.getElementById('result').innerHTML = message;
+	processDocument(document);
+}
+
+// Should be overridden where picker.js is used
+function processDocument(document){
+	console.log(document);
 }
 
 // Make the picker visible
