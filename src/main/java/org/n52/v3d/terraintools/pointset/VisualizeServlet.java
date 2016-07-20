@@ -120,6 +120,8 @@ public class VisualizeServlet extends HttpServlet {
         out.println("<br>");
         out.println("<input type='submit' value='Get Visualization'>");
         out.println("</form>");
+        out.println("<div id=\"picked\"></div>");
+        out.println("<button onclick=\"window.showPicker()\">Show Picker</button>");
         out.println("</body>");
         out.println("</html>");
     }

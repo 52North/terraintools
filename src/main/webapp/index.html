@@ -169,7 +169,8 @@
                     client_id: '948086675144-fq6u0ajvdi4mp8bt2ovh4p87mmrpesg7.apps.googleusercontent.com',
                     cookiepolicy: 'single_host_origin',
                     fetch_basic_profile: false,
-                    scope: "https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/drive"
+                    scope: "https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/drive",
+                    immediate: true
                 }).then(function () {
                     console.log('init');
                     auth2 = gapi.auth2.getAuthInstance();
@@ -208,6 +209,7 @@
             var url = 'nothing';
             if (data[google.picker.Response.ACTION] === google.picker.Action.PICKED) {
                 var doc = data[google.picker.Response.DOCUMENTS][0];
+                console.log(doc);
                 url = doc[google.picker.Document.URL];
             }
             var message = 'You picked: ' + url;
@@ -216,6 +218,7 @@
 
         // Make the picker visible
         function showPicker() {
+            console.log(gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token);
             picker.setVisible(true);
         }
 

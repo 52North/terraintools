@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Elevation Grid</title>
+    </head>
+    <body>
+        <form action='elevation' method='POST'>
+            <p>This will be soon replaced by the Picker API!</p>
+            User ID: <input type='text' name='user' value='" + userId + "' readonly/>
+            <br>
+            <br>
+            Application ID: <input type='text' name='application' value='" + applicationId + "' readonly/>
+            <br>
+            <br>
+            Project ID: <input type='text' name='project' value='" + projectId + "' readonly/>
+            <br>
+            <br>
+            Pointset ID: <input type='text' name='pointset' value='" + pointsetId + "' readonly/>
+            <br>
+            <br>
+            Elevation Name: <input type='text' name='elevation' value='ElevationGrid.grd'/>
+            <br>
+            <br>
+            Cell Size: <input type='text' name='cellsize' value='50.0'/>
+            <br>
+            <br>
+            Weight Function: <select name='method'>
+                <option value='1'>Nearest Neighbour</option>
+                <option value='2'>Inverse Distance</option>
+                <option value='3'>Triangular Weight</option>
+                <option value='4'>Franke-Little Weighting</option>
+            </select>
+            <input type='hidden' name='request' value='newElevationGrid'>
+            <br>
+            <br>
+            <input type='submit' value='New Elevation Grid'>
+        </form>
+    </body>
+</html>
