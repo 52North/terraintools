@@ -2,20 +2,27 @@
 <html>
     <head>
         <title>Elevation Grid</title>
+        <script type="text/javascript" src="https://rawgit.com/kamakshidasan/terraintools/master/src/main/resources/picker.js"></script>
+        <script type="text/javascript">
+            function processDocument(doc) {
+                var documentId = null;
+                var parentId = null;
+                if (doc != null) {
+                    documentId = doc.id;
+                    parentId = doc.parentId;
+                }
+                document.getElementById('projectId').value = parentId;
+                document.getElementById('pointsetId').value = documentId;
+            }
+        </script>
     </head>
     <body>
         <form action='elevation' method='POST'>
             <p>This will be soon replaced by the Picker API!</p>
-            User ID: <input type='text' name='user' value='" + userId + "' readonly/>
+            Project ID: <input type='text' id='projectId' name='project' readonly/>
             <br>
             <br>
-            Application ID: <input type='text' name='application' value='" + applicationId + "' readonly/>
-            <br>
-            <br>
-            Project ID: <input type='text' name='project' value='" + projectId + "' readonly/>
-            <br>
-            <br>
-            Pointset ID: <input type='text' name='pointset' value='" + pointsetId + "' readonly/>
+            Pointset ID: <input type='text' id='pointsetId' name='pointset' readonly/>
             <br>
             <br>
             Elevation Name: <input type='text' name='elevation' value='ElevationGrid.grd'/>
@@ -35,5 +42,9 @@
             <br>
             <input type='submit' value='New Elevation Grid'>
         </form>
+        <script type="text/javascript" src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>
+        <br>
+        <br>
+        <button onclick="showPicker()">Choose file from Google Drive</button>
     </body>
 </html>

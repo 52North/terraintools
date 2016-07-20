@@ -44,8 +44,10 @@ function handleAuthResult(authResult) {
 // Create and render a Picker object for picking user Documents.
 function createPicker() {
 	if (pickerApiLoaded && oauthToken) {
+		var folderView = new google.picker.View(google.picker.ViewId.FOLDERS);
+		folderView.setQuery("52n-terraintools");
 		picker = new google.picker.PickerBuilder().
-				addView(google.picker.ViewId.DOCS).
+				addView(folderView).
 				setOAuthToken(oauthToken).
 				setDeveloperKey(developerKey).
 				setCallback(pickerCallback).
