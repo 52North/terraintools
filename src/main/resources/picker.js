@@ -56,11 +56,11 @@ function createPicker() {
 
 // A simple callback implementation.
 function pickerCallback(data) {
-	var document = null;
+	var doc = null;
 	if (data[google.picker.Response.ACTION] === google.picker.Action.PICKED) {
-		document = data[google.picker.Response.DOCUMENTS][0];
+		doc = data[google.picker.Response.DOCUMENTS][0];
 	}
-	processDocument(document);
+	processDocument(doc);
 }
 
 // Should be overridden where picker.js is used

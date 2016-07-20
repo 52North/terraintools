@@ -4,10 +4,10 @@
         <title>Google Picker Example</title>
         <script type="text/javascript" src="https://rawgit.com/kamakshidasan/terraintools/master/src/main/resources/picker.js"></script>
 		<script type="text/javascript">
-			function processDocument(document){
+			function processDocument(doc){
 				var url = 'nothing';
-				if(document != null){
-					url = document[google.picker.Document.URL];
+				if(doc != null){
+					url = doc[google.picker.Document.URL];
 				}
 				var message = 'You picked: ' + url;
 				document.getElementById('result').innerHTML = message;			
