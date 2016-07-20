@@ -66,7 +66,7 @@ public class CoordinatesServlet extends HttpServlet {
         out.println("<br>");
         out.println("<br>");
         out.println("<input type='hidden' name='request' value='newPointSet'>");
-        out.println("<textarea name='data' rows='5' cols='50'></textarea>");
+        out.println("<textarea name='data' id='pointsetData' rows='5' cols='50'></textarea>");
         out.println("<br>");
         out.println("<br>");
         out.println("<input type='submit' value='New Point Set'>");

@@ -192,10 +192,8 @@
         // Create and render a Picker object for picking user Documents.
         function createPicker() {
             if (pickerApiLoaded && oauthToken) {
-                var folderView = new google.picker.View(google.picker.ViewId.FOLDERS);
-                folderView.setQuery("52n-terraintools");
                 picker = new google.picker.PickerBuilder().
-                        addView(folderView).
+                        addView(new google.picker.View(google.picker.ViewId.FOLDERS)).
                         setOAuthToken(oauthToken).
                         setDeveloperKey(developerKey).
                         setCallback(pickerCallback).
@@ -211,6 +209,40 @@
                 var doc = data[google.picker.Response.DOCUMENTS][0];
                 console.log(doc);
                 url = doc[google.picker.Document.URL];
+
+                var file = doc;
+                var downloadUrl;
+
+                gapi.client.request({
+                    'path': '/drive/v2/files/' + file.id,
+                    'method': 'GET',
+                    callback: function (responsejs, responsetxt) {
+
+                        downloadUrl = responsejs.downloadUrl;
+
+                        var gDoxBlob = null;
+                        var xhr = new XMLHttpRequest();
+                        xhr.open("GET", downloadUrl); //file.url
+
+                        var accessToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
+                        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+
+                        xhr.responseType = "blob";
+                        xhr.onload = function () {
+                            gDoxBlob = xhr.response;
+                            console.log(xhr.response);
+                            var myReader = new FileReader();
+                            myReader.onload = function (event) {
+                                document.getElementById('pointsetData').value =
+                                        myReader.result;
+                            };
+                            myReader.readAsText(gDoxBlob);
+                        }
+                        xhr.send();
+
+                    }
+                });
+
             }
             var message = 'You picked: ' + url;
             document.getElementById('picked').innerHTML = message;
@@ -218,7 +250,6 @@
 
         // Make the picker visible
         function showPicker() {
-            console.log(gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token);
             picker.setVisible(true);
         }
 
