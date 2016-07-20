@@ -2,48 +2,6 @@
 <head>
 <link rel="stylesheet" type="text/css" href="x3dom.css" />
 <script type="text/javascript" src="x3dom-full.js"></script>
-<script>
-x3dom.Viewarea.prototype.onDoubleClick = function (x, y){
-	var at = this._pick;
-	console.log(at['x'] + " "+ at['y'] + " " + at['z']);
-	var point = [at['x'] , at['y'] , at['z']];
-	findNeighbours(point);
-	console.log(getGridPosition());
-	addNode(point);
-}
-
-function addNode(point){		
-	var x = point[0];
-	var y = point[1];
-	var z = point[2];
-	
-	var transform = document.createElement('Transform');
-	transform.setAttribute("translation", x + " " + y + " " + z );
-	
-	var shape = document.createElement('Shape');
-	transform.appendChild(shape);
-	
-	var appearance = document.createElement('Appearance');
-	shape.appendChild(appearance);
-	
-	var material = document.createElement('Material');
-	material.setAttribute('diffuseColor','1 0 0');
-	material.setAttribute('specularColor','0.7 0.7 0.7');
-	material.setAttribute('shininess','0.5');
-	
-	appearance.appendChild(material);
-	
-	var sphere = document.createElement('Sphere');
-	sphere.setAttribute ('radius','100');
-	
-	shape.appendChild(sphere);
-	
-	var root = document.getElementById('root');
-	root.appendChild(transform);
-	
-	return false;
-};
-</script>
 </head>
 <body>
 <x3d id="boxes" profile='Immersive' height='400px' width='400px' showLog='true'>
@@ -64,6 +22,6 @@ function addNode(point){
   </scene>
 </x3d>
 </body>
-<script type="text/javascript" src="select.js"></script>
+<script type="text/javascript" src="section.js"></script>
 <div id="insert"></div>
 </html>

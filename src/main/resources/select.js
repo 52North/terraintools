@@ -25,6 +25,50 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  * PARTICULAR PURPOSE. See the GNU General Public License for more details.
  */
+ 
+ var crossSectionPoints = [];
+ 
+ x3dom.Viewarea.prototype.onDoubleClick = function (x, y){
+	var at = this._pick;
+	console.log(at['x'] + " "+ at['y'] + " " + at['z']);
+	var point = [at['x'] , at['y'] , at['z']];
+	findNeighbours(point);
+	crossSectionPoints.push(getGridPositionX(), getGridPositionY());
+	addNode(point);
+}
+
+function addNode(point){		
+	var x = point[0];
+	var y = point[1];
+	var z = point[2];
+	
+	var transform = document.createElement('Transform');
+	transform.setAttribute("translation", x + " " + y + " " + z );
+	
+	var shape = document.createElement('Shape');
+	transform.appendChild(shape);
+	
+	var appearance = document.createElement('Appearance');
+	shape.appendChild(appearance);
+	
+	var material = document.createElement('Material');
+	material.setAttribute('diffuseColor','1 0 0');
+	material.setAttribute('specularColor','0.7 0.7 0.7');
+	material.setAttribute('shininess','0.5');
+	
+	appearance.appendChild(material);
+	
+	var sphere = document.createElement('Sphere');
+	sphere.setAttribute ('radius','100');
+	
+	shape.appendChild(sphere);
+	
+	var root = document.getElementById('root');
+	root.appendChild(transform);
+	
+	return false;
+};
+ 
 function roundWithTwoDecimals(value) {
     return (Math.round(value * 100)) / 100;
 }
@@ -61,8 +105,8 @@ function findNeighbours(point) {
         "array[" + ceil_i + "][" + floor_j + "] = " + neighbours[1] + "<br>" +
         "array[" + floor_i + "][" + ceil_j + "] = " + neighbours[2] + "<br>" +
         "array[" + ceil_i + "][" + ceil_j + "] = " + neighbours[3] + "</p><br>";
-    
-    document.getElementById("situation").style.display = "block";
+		
+	document.getElementById("situation").style.display = "block";
 }
 
 function check(situationType) {
@@ -112,6 +156,27 @@ function flood(){
 	xhttp.send();
 }
 
+function getSectionPoints(){
+	return crossSectionPoints.toString(); 
+}
+
+function getCrossSection(){
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+	  if (xhttp.readyState == 4 && xhttp.status == 200) {
+		    var win=window.open('about:blank');
+			with(win.document)
+			{
+			  open();
+			  write(xhttp.responseText);
+			  close();
+			}
+	  }
+	};
+	xhttp.open("GET", '/crossSection?pos='+getSectionPoints(), true);
+	xhttp.send();
+}
+
 window.onload = function() {
     this.grid = document.getElementById("grid");
     this.height = grid.height;
@@ -144,6 +209,8 @@ window.onload = function() {
 				<input type="radio" id="absoluteRadio" name="situationType" onclick="check(this.value)" value="absolute">Absolute<br>\
 				<br>\
 				<input type="submit" value="Show Flooding" onclick="flood()">\
+				<br>\
+				<input type="submit" value="Show Cross Section" onclick="getCrossSection()">\
 			</div>\
 		</div>\
 	';

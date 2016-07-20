@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html>
     <head>
         <title>Elevation Grid</title>
@@ -17,14 +16,14 @@
         </script>
     </head>
     <body>
-        <form action='elevation' method='POST'>
+        <form action='visualize' method='POST'>
             Project ID: <input type='text' id='projectId' name='project' readonly/>
             <br>
             <br>
             Pointset ID: <input type='text' id='pointsetId' name='pointset' readonly/>
             <br>
             <br>
-            Elevation Name: <input type='text' name='elevation' value='ElevationGrid.grd'/>
+            Visualization Name: <input type='text' name='visualization' value='visualization.html' />
             <br>
             <br>
             Cell Size: <input type='text' name='cellsize' value='50.0'/>
@@ -36,13 +35,23 @@
                 <option value='3'>Triangular Weight</option>
                 <option value='4'>Franke-Little Weighting</option>
             </select>
-            <input type='hidden' name='request' value='newElevationGrid'>
             <br>
             <br>
-            <input type='submit' value='New Elevation Grid'>
+            Format: <select name='format'>
+                <option value='X3DOM'>X3DOM</option>
+                <option value='X3D'>X3d</option>
+                <option value='ArcIGrd'>ARCINFO_ASCII_GRID</option>
+                <option value='AcGeo'>ACGEO</option>
+                <option value='Vrml2'>VRML2</option>
+            </select>
+            <input type='hidden' name='request' value='visualizeObject'>
+            <br>
+            <br>
+            <input type='submit' value='Get Visualization'>
         </form>
         <br>
         <br>
+        <div id="picked"></div>
         <script type="text/javascript" src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>
         <button onclick="showPicker()">Choose file from Google Drive</button>
     </body>

@@ -17,6 +17,10 @@
         <servlet-class>org.n52.v3d.terraintools.pointset.FloodingServlet</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>CrossSectionServlet</servlet-name>
+        <servlet-class>org.n52.v3d.terraintools.pointset.CrossSectionServlet</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>ConnectServlet</servlet-name>
         <servlet-class>org.n52.v3d.terraintools.auth.ConnectServlet</servlet-class>
     </servlet>
@@ -47,6 +51,10 @@
     <servlet-mapping>
         <servlet-name>FloodingServlet</servlet-name>
         <url-pattern>/flooding</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CrossSectionServlet</servlet-name>
+        <url-pattern>/crossSection</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

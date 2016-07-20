@@ -181,8 +181,8 @@ public class FloodingServlet extends HttpServlet {
         T3dColor cols[] = {
             new T3dColor(0.0f, 0.8f, 0.0f), // green
             new T3dColor(1.0f, 1.0f, 0.5f), // pale yellow
-            new T3dColor(0f, 0f, 0.8f), // blue
-            //new T3dColor(0.78f, 0.27f, 0.0f), // brown
+            //new T3dColor(0f, 0f, 0.8f), // blue
+            new T3dColor(0.78f, 0.27f, 0.0f), // brown
             new T3dColor(0.82f, 0.2f, 0.0f) // red/brown
         };
         ((MpSimpleHypsometricColor) colMapper).setPalette(elev, cols, true);
