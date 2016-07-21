@@ -8,9 +8,17 @@
         <servlet-name>ElevationServlet</servlet-name>
         <servlet-class>org.n52.v3d.terraintools.pointset.ElevationServlet</servlet-class>
     </servlet>
-        <servlet>
+    <servlet>
         <servlet-name>VisualizeServlet</servlet-name>
         <servlet-class>org.n52.v3d.terraintools.pointset.VisualizeServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>FloodingServlet</servlet-name>
+        <servlet-class>org.n52.v3d.terraintools.pointset.FloodingServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>CrossSectionServlet</servlet-name>
+        <servlet-class>org.n52.v3d.terraintools.pointset.CrossSectionServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ConnectServlet</servlet-name>
@@ -36,9 +44,17 @@
         <servlet-name>ElevationServlet</servlet-name>
         <url-pattern>/elevation</url-pattern>
     </servlet-mapping>
-        <servlet-mapping>
+    <servlet-mapping>
         <servlet-name>VisualizeServlet</servlet-name>
         <url-pattern>/visualize</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FloodingServlet</servlet-name>
+        <url-pattern>/flooding</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CrossSectionServlet</servlet-name>
+        <url-pattern>/crossSection</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

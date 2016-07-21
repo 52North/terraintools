@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Elevation Grid</title>
+        <script type="text/javascript" src="https://rawgit.com/kamakshidasan/terraintools/master/src/main/resources/picker.js"></script>
+        <script type="text/javascript">
+            function processDocument(doc) {
+                var documentId = null;
+                var parentId = null;
+                if (doc != null) {
+                    documentId = doc.id;
+                    parentId = doc.parentId;
+                }
+                document.getElementById('projectId').value = parentId;
+                document.getElementById('pointsetId').value = documentId;
+            }
+        </script>
+    </head>
+    <body>
+        <form action='elevation' method='POST'>
+            Project ID: <input type='text' id='projectId' name='project' readonly/>
+            <br>
+            <br>
+            Pointset ID: <input type='text' id='pointsetId' name='pointset' readonly/>
+            <br>
+            <br>
+            Elevation Name: <input type='text' name='elevation' value='ElevationGrid.grd'/>
+            <br>
+            <br>
+            Cell Size: <input type='text' name='cellsize' value='50.0'/>
+            <br>
+            <br>
+            Weight Function: <select name='method'>
+                <option value='1'>Nearest Neighbour</option>
+                <option value='2'>Inverse Distance</option>
+                <option value='3'>Triangular Weight</option>
+                <option value='4'>Franke-Little Weighting</option>
+            </select>
+            <input type='hidden' name='request' value='newElevationGrid'>
+            <br>
+            <br>
+            <input type='submit' value='New Elevation Grid'>
+        </form>
+        <br>
+        <br>
+        <script type="text/javascript" src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>
+        <button onclick="showPicker()">Choose file from Google Drive</button>
+    </body>
+</html>

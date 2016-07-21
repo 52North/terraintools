@@ -1,0 +1,22 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+        <title>Google Picker Example</title>
+        <script type="text/javascript" src="https://rawgit.com/kamakshidasan/terraintools/master/src/main/resources/picker.js"></script>
+        <script type="text/javascript">
+            function processDocument(doc) {
+                var url = 'nothing';
+                if (doc != null) {
+                    url = doc[google.picker.Document.URL];
+                }
+                var message = 'You picked: ' + url;
+                document.getElementById('result').innerHTML = message;
+            }
+        </script>
+    </head>
+    <body>
+        <div id="result"></div>
+        <script type="text/javascript" src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>
+        <button onclick="showPicker()">Choose file from Google Drive</button>
+    </body>
+</html>

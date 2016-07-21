@@ -1,0 +1,58 @@
+<html>
+    <head>
+        <title>Elevation Grid</title>
+        <script type="text/javascript" src="https://rawgit.com/kamakshidasan/terraintools/master/src/main/resources/picker.js"></script>
+        <script type="text/javascript">
+            function processDocument(doc) {
+                var documentId = null;
+                var parentId = null;
+                if (doc != null) {
+                    documentId = doc.id;
+                    parentId = doc.parentId;
+                }
+                document.getElementById('projectId').value = parentId;
+                document.getElementById('pointsetId').value = documentId;
+            }
+        </script>
+    </head>
+    <body>
+        <form action='visualize' method='POST'>
+            Project ID: <input type='text' id='projectId' name='project' readonly/>
+            <br>
+            <br>
+            Pointset ID: <input type='text' id='pointsetId' name='pointset' readonly/>
+            <br>
+            <br>
+            Visualization Name: <input type='text' name='visualization' value='visualization.html' />
+            <br>
+            <br>
+            Cell Size: <input type='text' name='cellsize' value='50.0'/>
+            <br>
+            <br>
+            Weight Function: <select name='method'>
+                <option value='1'>Nearest Neighbour</option>
+                <option value='2'>Inverse Distance</option>
+                <option value='3'>Triangular Weight</option>
+                <option value='4'>Franke-Little Weighting</option>
+            </select>
+            <br>
+            <br>
+            Format: <select name='format'>
+                <option value='X3DOM'>X3DOM</option>
+                <option value='X3D'>X3d</option>
+                <option value='ArcIGrd'>ARCINFO_ASCII_GRID</option>
+                <option value='AcGeo'>ACGEO</option>
+                <option value='Vrml2'>VRML2</option>
+            </select>
+            <input type='hidden' name='request' value='visualizeObject'>
+            <br>
+            <br>
+            <input type='submit' value='Get Visualization'>
+        </form>
+        <br>
+        <br>
+        <div id="picked"></div>
+        <script type="text/javascript" src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>
+        <button onclick="showPicker()">Choose file from Google Drive</button>
+    </body>
+</html>
