@@ -205,27 +205,27 @@ window.onload = function() {
     getTransformScale();
 
     getId("insert").innerHTML = '\
-<div style="position:absolute;left:1000px;top:100px;width:200px">\
-	<h3>Click coordinates:</h3>\
-	<table style="font-size:1em;">\
-		<tr><td>X: </td><td id="coordX">-</td></tr>\
-		<tr><td>Y: </td><td id="coordY">-</td></tr>\
-		<tr><td>Z: </td><td id="coordZ">-</td></tr>\
-		<tr><td>i: </td><td id="gridZ">-</td></tr>\
-		<tr><td>j: </td><td id="gridX">-</td></tr>\
-		<tr><td>value: </td><td id="gridY">-</td></tr>\
-	</table>\
-	<br>\
-	<div id="gridValues"></div>\
-	<div id="situation" style="display:none;">\
-		Z Value: <input type="text" id="situationValue" size="10" value="5"><br>\
-		<input type="radio" id="relativeRadio" name="situationType" onclick="check(this.value)" value="relative" checked>Relative\
-		<input type="radio" id="absoluteRadio" name="situationType" onclick="check(this.value)" value="absolute">Absolute<br>\
-		<br>\
-		<input type="submit" value="Show Flooding" onclick="flood()">\
-		<br>\
-		<input type="submit" value="Show Cross Section" onclick="getCrossSection()">\
-	</div>\
-</div>\
-';
+      <div style="position:absolute;left:1000px;top:100px;width:200px">\
+      	<h3>Click coordinates:</h3>\
+      	<table style="font-size:1em;">\
+      		<tr><td>X: </td><td id="coordX">-</td></tr>\
+      		<tr><td>Y: </td><td id="coordY">-</td></tr>\
+      		<tr><td>Z: </td><td id="coordZ">-</td></tr>\
+      		<tr><td>i: </td><td id="gridZ">-</td></tr>\
+      		<tr><td>j: </td><td id="gridX">-</td></tr>\
+      		<tr><td>value: </td><td id="gridY">-</td></tr>\
+      	</table>\
+      	<br>\
+      	<div id="gridValues"></div>\
+      	<div id="situation" style="display:none;">\
+      		Z Value: <input type="text" id="situationValue" size="10" value="5"><br>\
+      		<input type="radio" id="relativeRadio" name="situationType" onclick="check(this.value)" value="relative" checked>Relative\
+      		<input type="radio" id="absoluteRadio" name="situationType" onclick="check(this.value)" value="absolute">Absolute<br>\
+      		<br>\
+      		<input type="submit" value="Show Flooding" onclick="flood()">\
+      		<br>\
+      		<input type="submit" value="Show Cross Section" onclick="getCrossSection()">\
+      	</div>\
+      </div>\
+    ';
 }
