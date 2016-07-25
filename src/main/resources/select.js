@@ -25,64 +25,80 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  * PARTICULAR PURPOSE. See the GNU General Public License for more details.
  */
- 
- var crossSectionPoints = [];
- 
- x3dom.Viewarea.prototype.onDoubleClick = function (x, y){
-	var at = this._pick;
-	console.log(at['x'] + " "+ at['y'] + " " + at['z']);
-	var point = [at['x'] , at['y'] , at['z']];
-	findNeighbours(point);
-	crossSectionPoints.push(getGridPositionX(), getGridPositionY());
-	addNode(point);
+var crossSectionPoints = [];
+var marker = null;
+
+function getId(element) {
+  return document.getElementById(element);
 }
 
-function addNode(point){		
-	var x = point[0];
-	var y = point[1];
-	var z = point[2];
-	
-	var transform = document.createElement('Transform');
-	transform.setAttribute("translation", x + " " + y + " " + z );
-	
-	var shape = document.createElement('Shape');
-	transform.appendChild(shape);
-	
-	var appearance = document.createElement('Appearance');
-	shape.appendChild(appearance);
-	
-	var material = document.createElement('Material');
-	material.setAttribute('diffuseColor','1 0 0');
-	material.setAttribute('specularColor','0.7 0.7 0.7');
-	material.setAttribute('shininess','0.5');
-	
-	appearance.appendChild(material);
-	
-	var sphere = document.createElement('Sphere');
-	sphere.setAttribute ('radius','100');
-	
-	shape.appendChild(sphere);
-	
-	var root = document.getElementById('root');
-	root.appendChild(transform);
-	
-	return false;
+x3dom.Viewarea.prototype.onDoubleClick = function(x, y) {
+    var at = this._pick;
+    console.log(at['x'] + " " + at['y'] + " " + at['z']);
+    var point = [at['x'], at['y'], at['z']];
+    crossSectionPoints.push(getGridPositionX(), getGridPositionY());
+    addNode(point);
+}
+
+function addNode(point) {
+    createSphere(point, false);
+    return false;
 };
- 
+
+function createSphere(point, marker) {
+    var transform = document.createElement('Transform');
+    transform.setAttribute("translation", point[0] + " " + point[1] + " " + point[2]);
+
+    var shape = document.createElement('Shape');
+    transform.appendChild(shape);
+
+    var appearance = document.createElement('Appearance');
+    shape.appendChild(appearance);
+
+    var material = document.createElement('Material');
+    if (marker == true) {
+        material.setAttribute('diffuseColor', '1 1 0');
+        transform.setAttribute('id', 'marker');
+    } else {
+        material.setAttribute('diffuseColor', '1 0 0');
+    }
+    material.setAttribute('specularColor', '0.7 0.7 0.7');
+    material.setAttribute('shininess', '0.5');
+
+    appearance.appendChild(material);
+
+    var sphere = document.createElement('Sphere');
+    sphere.setAttribute('radius', '100');
+
+    shape.appendChild(sphere);
+
+    var root = getId('root');
+    root.appendChild(transform);
+
+    return transform;
+}
+
 function roundWithTwoDecimals(value) {
     return (Math.round(value * 100)) / 100;
 }
 
 function handleClick(event) {
     this.coordinates = event.hitPnt;
-    document.getElementById('coordX').innerHTML = roundWithTwoDecimals(coordinates[0]);
-    document.getElementById('coordY').innerHTML = roundWithTwoDecimals(coordinates[1]);
-    document.getElementById('coordZ').innerHTML = roundWithTwoDecimals(coordinates[2]);
-    document.getElementById('gridX').innerHTML = roundWithTwoDecimals(coordinates[0]/cellColumnSize);
-    document.getElementById('gridY').innerHTML = roundWithTwoDecimals(coordinates[1]/transform[1]);
-    document.getElementById('gridZ').innerHTML = roundWithTwoDecimals(coordinates[2]/cellRowSize);
-	
-	this.currentValue = roundWithTwoDecimals(coordinates[1]/transform[1]);
+
+    if (marker == null) {
+        marker = createSphere(coordinates, true);
+    } else {
+        getId('marker').setAttribute('translation', coordinates);
+    }
+
+    getId('coordX').innerHTML = roundWithTwoDecimals(coordinates[0]);
+    getId('coordY').innerHTML = roundWithTwoDecimals(coordinates[1]);
+    getId('coordZ').innerHTML = roundWithTwoDecimals(coordinates[2]);
+    getId('gridX').innerHTML = roundWithTwoDecimals(coordinates[0] / cellColumnSize);
+    getId('gridY').innerHTML = roundWithTwoDecimals(coordinates[1] / transform[1]);
+    getId('gridZ').innerHTML = roundWithTwoDecimals(coordinates[2] / cellRowSize);
+
+    this.currentValue = roundWithTwoDecimals(coordinates[1] / transform[1]);
     findNeighbours(event.hitPnt)
 }
 
@@ -95,18 +111,19 @@ function findNeighbours(point) {
     var floor_i = Math.floor(i);
     var floor_j = Math.floor(j);
 
-	this.neighbours =  [(array[floor_i][floor_j]),
-						(array[ceil_i][floor_j]),
-						(array[floor_i][ceil_j]),
-						(array[ceil_i][ceil_j])];
-	
-    document.getElementById("gridValues").innerHTML = "<p>" +
+    this.neighbours = [(array[floor_i][floor_j]),
+        (array[ceil_i][floor_j]),
+        (array[floor_i][ceil_j]),
+        (array[ceil_i][ceil_j])
+    ];
+
+    getId("gridValues").innerHTML = "<p>" +
         "array[" + floor_i + "][" + floor_j + "] = " + neighbours[0] + "<br>" +
         "array[" + ceil_i + "][" + floor_j + "] = " + neighbours[1] + "<br>" +
         "array[" + floor_i + "][" + ceil_j + "] = " + neighbours[2] + "<br>" +
         "array[" + ceil_i + "][" + ceil_j + "] = " + neighbours[3] + "</p><br>";
-		
-	document.getElementById("situation").style.display = "block";
+
+    getId("situation").style.display = "block";
 }
 
 function check(situationType) {
@@ -114,71 +131,68 @@ function check(situationType) {
 }
 
 function getTransformScale() {
-	this.transform = document.getElementById("elevationTransform").scale.split(" ");
+    this.transform = getId("elevationTransform").scale.split(" ");
 }
 
-function getGridPositionX(){
-	return parseInt(coordinates[2]/cellRowSize);
+function getGridPositionX() {
+    return parseInt(coordinates[2] / cellRowSize);
 }
 
-function getGridPositionY(){
-	return parseInt(coordinates[0]/cellColumnSize);
+function getGridPositionY() {
+    return parseInt(coordinates[0] / cellColumnSize);
 }
 
-function getGridPosition(){
-	return getGridPositionX()+","+getGridPositionY();
+function getGridPosition() {
+    return getGridPositionX() + "," + getGridPositionY();
 }
 
-function getWaterLevel(){
-	var value = document.getElementById('situationValue').value;
-	if (document.getElementById('absoluteRadio').checked) {
-	  return parseFloat(value) + array[getGridPositionX()][getGridPositionY()];
-	}
-	else{
-		return parseFloat(value);
-	}
+function getWaterLevel() {
+    var value = getId('situationValue').value;
+    if (getId('absoluteRadio').checked) {
+        return parseFloat(value) + array[getGridPositionX()][getGridPositionY()];
+    } else {
+        return parseFloat(value);
+    }
 }
 
-function flood(){
-	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-	  if (xhttp.readyState == 4 && xhttp.status == 200) {
-		    var win=window.open('about:blank');
-			with(win.document)
-			{
-			  open();
-			  write(xhttp.responseText);
-			  close();
-			}
-	  }
-	};
-	xhttp.open("GET", '/flooding?position='+getGridPosition()+'&waterlevel='+getWaterLevel(), true);
-	xhttp.send();
+function flood() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (xhttp.readyState == 4 && xhttp.status == 200) {
+            var win = window.open('about:blank');
+            with(win.document) {
+                open();
+                write(xhttp.responseText);
+                close();
+            }
+        }
+    };
+    xhttp.open("GET", '/flooding?position=' + getGridPosition() + '&waterlevel=' + getWaterLevel(), true);
+    xhttp.send();
 }
 
-function getSectionPoints(){
-	return crossSectionPoints.toString(); 
+function getSectionPoints() {
+    return crossSectionPoints.toString();
 }
 
-function getCrossSection(){
-	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-	  if (xhttp.readyState == 4 && xhttp.status == 200) {
-		    var win=window.open('about:blank');
-			with(win.document)
-			{
-			  open();
-			  write(xhttp.responseText);
-			  close();
-			}
-	  }
-	};
-	xhttp.open("GET", '/crossSection?pos='+getSectionPoints(), true);
-	xhttp.send();
+function getCrossSection() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (xhttp.readyState == 4 && xhttp.status == 200) {
+            var win = window.open('about:blank');
+            with(win.document) {
+                open();
+                write(xhttp.responseText);
+                close();
+            }
+        }
+    };
+    xhttp.open("GET", '/crossSection?pos=' + getSectionPoints(), true);
+    xhttp.send();
 }
 
 window.onload = function() {
-    this.grid = document.getElementById("grid");
+    this.grid = getId("grid");
     this.height = grid.height;
     this.columns = parseInt(grid.xDimension);
     this.cellColumnSize = parseInt(grid.xSpacing);
@@ -188,30 +202,30 @@ window.onload = function() {
     this.result = height.map(Number);
     this.array = [];
     while (result.length > 0) array.push(result.splice(0, columns));
-	getTransformScale();
+    getTransformScale();
 
-    document.getElementById("insert").innerHTML = '\
-		<div style="position:absolute;left:1000px;top:100px;width:200px">\
-			<h3>Click coordinates:</h3>\
-			<table style="font-size:1em;">\
-				<tr><td>X: </td><td id="coordX">-</td></tr>\
-				<tr><td>Y: </td><td id="coordY">-</td></tr>\
-				<tr><td>Z: </td><td id="coordZ">-</td></tr>\
-				<tr><td>i: </td><td id="gridZ">-</td></tr>\
-				<tr><td>j: </td><td id="gridX">-</td></tr>\
-				<tr><td>value: </td><td id="gridY">-</td></tr>\
-			</table>\
-			<br>\
-			<div id="gridValues"></div>\
-			<div id="situation" style="display:none;">\
-				Z Value: <input type="text" id="situationValue" size="10" value="5"><br>\
-				<input type="radio" id="relativeRadio" name="situationType" onclick="check(this.value)" value="relative" checked>Relative\
-				<input type="radio" id="absoluteRadio" name="situationType" onclick="check(this.value)" value="absolute">Absolute<br>\
-				<br>\
-				<input type="submit" value="Show Flooding" onclick="flood()">\
-				<br>\
-				<input type="submit" value="Show Cross Section" onclick="getCrossSection()">\
-			</div>\
-		</div>\
-	';
+    getId("insert").innerHTML = '\
+<div style="position:absolute;left:1000px;top:100px;width:200px">\
+	<h3>Click coordinates:</h3>\
+	<table style="font-size:1em;">\
+		<tr><td>X: </td><td id="coordX">-</td></tr>\
+		<tr><td>Y: </td><td id="coordY">-</td></tr>\
+		<tr><td>Z: </td><td id="coordZ">-</td></tr>\
+		<tr><td>i: </td><td id="gridZ">-</td></tr>\
+		<tr><td>j: </td><td id="gridX">-</td></tr>\
+		<tr><td>value: </td><td id="gridY">-</td></tr>\
+	</table>\
+	<br>\
+	<div id="gridValues"></div>\
+	<div id="situation" style="display:none;">\
+		Z Value: <input type="text" id="situationValue" size="10" value="5"><br>\
+		<input type="radio" id="relativeRadio" name="situationType" onclick="check(this.value)" value="relative" checked>Relative\
+		<input type="radio" id="absoluteRadio" name="situationType" onclick="check(this.value)" value="absolute">Absolute<br>\
+		<br>\
+		<input type="submit" value="Show Flooding" onclick="flood()">\
+		<br>\
+		<input type="submit" value="Show Cross Section" onclick="getCrossSection()">\
+	</div>\
+</div>\
+';
 }
