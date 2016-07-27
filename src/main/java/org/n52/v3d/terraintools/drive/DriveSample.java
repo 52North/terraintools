@@ -77,16 +77,7 @@ public class DriveSample {
 
     public DriveSample(String project, String fileName, java.io.File file, String tokenData) {
         try {
-            GoogleCredential credential = new GoogleCredential.Builder()
-                    .setJsonFactory(JSON_FACTORY)
-                    .setTransport(TRANSPORT)
-                    .setClientSecrets(CLIENT_ID, CLIENT_SECRET).build()
-                    .setFromTokenResponse(JSON_FACTORY.fromString(
-                                    tokenData, GoogleTokenResponse.class));
-            drive = new Drive.Builder(TRANSPORT, JSON_FACTORY, credential)
-                    .setApplicationName(APPLICATION_NAME)
-                    .build();
-
+            init(tokenData);
             About about = drive.about().get().execute();
             USER_ID = about.getName();
 
@@ -126,6 +117,18 @@ public class DriveSample {
 
     public String getUserId() {
         return USER_ID;
+    }
+
+    public static void init(String tokenData) throws IOException {
+        GoogleCredential credential = new GoogleCredential.Builder()
+                .setJsonFactory(JSON_FACTORY)
+                .setTransport(TRANSPORT)
+                .setClientSecrets(CLIENT_ID, CLIENT_SECRET).build()
+                .setFromTokenResponse(JSON_FACTORY.fromString(
+                                tokenData, GoogleTokenResponse.class));
+        drive = new Drive.Builder(TRANSPORT, JSON_FACTORY, credential)
+                .setApplicationName(APPLICATION_NAME)
+                .build();
     }
 
     // https://developers.google.com/drive/v2/reference/files/list#examples
