@@ -156,6 +156,7 @@ function getWaterLevel() {
 }
 
 function flood() {
+    document.getElementById('loading-icon').style.display = 'block';
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if (xhttp.readyState == 4 && xhttp.status == 200) {
@@ -164,6 +165,7 @@ function flood() {
                 open();
                 write(xhttp.responseText);
                 close();
+                document.getElementById('loading-icon').style.display = 'none';
             }
         }
     };
@@ -178,20 +180,28 @@ function getSectionPoints() {
 }
 
 function getCrossSection() {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (xhttp.readyState == 4 && xhttp.status == 200) {
-            var win = window.open('about:blank');
-            with(win.document) {
-                open();
-                write(xhttp.responseText);
-                close();
+    if(crossSectionPoints.length <= 2){
+        alert("Select at least 2 points!");
+    }
+    else{
+        document.getElementById('loading-icon').style.display = 'block';
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (xhttp.readyState == 4 && xhttp.status == 200) {
+                var win = window.open('about:blank');
+                with(win.document) {
+                    open();
+                    write(xhttp.responseText);
+                    close();
+                    document.getElementById('loading-icon').style.display = 'none';
+                }
             }
-        }
-    };
-    xhttp.open("GET", '/crossSection?pos=' + getSectionPoints() +
-                    '&objId=' + getVisualizationId(), true);
-    xhttp.send();
+        };
+        xhttp.open("GET", '/crossSection?pos=' + getSectionPoints() +
+                        '&objId=' + getVisualizationId(), true);
+        xhttp.send();
+    }
+
 }
 
 function getVisualizationId(){
@@ -237,7 +247,8 @@ window.onload = function() {
       		<br>\
       		<input type="submit" value="Show Flooding" onclick="flood()">\
       		<br>\
-      		<input type="submit" value="Show Cross Section" onclick="getCrossSection()">\
+      		<input type="submit" value="Show Cross Section" onclick="getCrossSection()">\\n\
+                <img id="loading-icon" style="display:none;" src="https://ssl.gstatic.com/s2/oz/images/notifications/spinner_32_041dcfce66a2d43215abb96b38313ba0.gif"/>\
       	</div>\
       </div>\
     ';
