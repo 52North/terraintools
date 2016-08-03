@@ -256,8 +256,6 @@ window.onload = function() {
       		<br>\
       		<input type="submit" value="Show Cross Section" onclick="getCrossSection()">\
 		<img id="loading-icon" style="display:none;" src="https://ssl.gstatic.com/s2/oz/images/notifications/spinner_32_041dcfce66a2d43215abb96b38313ba0.gif"/>\
-      		<input type="submit" value="Show Cross Section" onclick="getCrossSection()">\
-                <img id="loading-icon" style="display:none;" src="https://ssl.gstatic.com/s2/oz/images/notifications/spinner_32_041dcfce66a2d43215abb96b38313ba0.gif"/>\
       	</div>\
       </div>\
     ';
