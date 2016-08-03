@@ -167,7 +167,9 @@ function flood() {
             }
         }
     };
-    xhttp.open("GET", '/flooding?position=' + getGridPosition() + '&waterlevel=' + getWaterLevel(), true);
+    xhttp.open("GET", '/flooding?position=' + getGridPosition() +
+            '&waterlevel=' + getWaterLevel() +
+            '&objId=' + getVisualizationId(), true);
     xhttp.send();
 }
 
@@ -187,8 +189,19 @@ function getCrossSection() {
             }
         }
     };
-    xhttp.open("GET", '/crossSection?pos=' + getSectionPoints(), true);
+    xhttp.open("GET", '/crossSection?pos=' + getSectionPoints() +
+                    '&objId=' + getVisualizationId(), true);
     xhttp.send();
+}
+
+function getVisualizationId(){
+    var metaTags = document.getElementsByTagName("meta");
+    var i = 0;
+    for (; i < metaTags.length; i++) {
+        if(metaTags[i].name === 'visualizationId'){
+            return metaTags[i].content;
+        }
+    }
 }
 
 window.onload = function() {
