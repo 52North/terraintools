@@ -212,6 +212,14 @@ function getVisualizationId(){
             return metaTags[i].content;
         }
     }
+<<<<<<< HEAD
+}
+
+function restoreViewpoint(){
+	var e = document.getElementById('x3d');
+	e.runtime.showAll();
+=======
+>>>>>>> 925429fcacbfca7eaea66c7b827bda2dba10bca4
 }
 
 window.onload = function() {
@@ -239,6 +247,8 @@ window.onload = function() {
       		<tr><td>value: </td><td id="gridY">-</td></tr>\
       	</table>\
       	<br>\
+		<br>\
+		<input type="submit" value="Restore Viewpoint" onclick="restoreViewpoint()">\
       	<div id="gridValues"></div>\
       	<div id="situation" style="display:none;">\
       		Z Value: <input type="text" id="situationValue" size="10" value="5"><br>\
@@ -247,8 +257,13 @@ window.onload = function() {
       		<br>\
       		<input type="submit" value="Show Flooding" onclick="flood()">\
       		<br>\
+<<<<<<< HEAD
+      		<input type="submit" value="Show Cross Section" onclick="getCrossSection()">\
+			<img id="loading-icon" style="display:none;" src="https://ssl.gstatic.com/s2/oz/images/notifications/spinner_32_041dcfce66a2d43215abb96b38313ba0.gif"/>\
+=======
       		<input type="submit" value="Show Cross Section" onclick="getCrossSection()">\\n\
                 <img id="loading-icon" style="display:none;" src="https://ssl.gstatic.com/s2/oz/images/notifications/spinner_32_041dcfce66a2d43215abb96b38313ba0.gif"/>\
+>>>>>>> 925429fcacbfca7eaea66c7b827bda2dba10bca4
       	</div>\
       </div>\
     ';
