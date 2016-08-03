@@ -45,6 +45,7 @@ import static org.n52.v3d.terraintools.auth.Signin.CLIENT_SECRET;
 import static org.n52.v3d.terraintools.auth.Signin.GSON;
 import static org.n52.v3d.terraintools.auth.Signin.JSON_FACTORY;
 import static org.n52.v3d.terraintools.auth.Signin.TRANSPORT;
+import org.n52.v3d.terraintools.drive.DriveSample;
 
 /**
  * Upgrade given auth code to token, and store it in the session. POST body of
@@ -64,15 +65,15 @@ public class ConnectServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_OK);
             System.out.println("Current user is already connected");
             response.getWriter().print(GSON.toJson("Current user is already connected."));
+            DriveSample.init(tokenData);
             return;
         }
-        
+
         // Normally the state would be a one-time use token, however in our
         // simple case, we want a user to be able to connect and disconnect
         // without reloading the page.  Thus, for demonstration, we don't
         // implement this best practice.
         //request.getSession().removeAttribute("state");
-
         ByteArrayOutputStream resultStream = new ByteArrayOutputStream();
         getContent(request.getInputStream(), resultStream);
         String code = new String(resultStream.toByteArray(), "UTF-8");
@@ -83,7 +84,7 @@ public class ConnectServlet extends HttpServlet {
                     = new GoogleAuthorizationCodeTokenRequest(TRANSPORT, JSON_FACTORY,
                             CLIENT_ID, CLIENT_SECRET, code, "postmessage").execute();
 
-             // You can read the Google user ID in the ID token.
+            // You can read the Google user ID in the ID token.
             // This sample does not use the user ID.
             GoogleIdToken idToken = tokenResponse.parseIdToken();
             String gplusId = idToken.getPayload().getSubject();
@@ -92,6 +93,9 @@ public class ConnectServlet extends HttpServlet {
             request.getSession().setAttribute("token", tokenResponse.toString());
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().print(GSON.toJson("Successfully connected user."));
+
+            tokenData = (String) request.getSession().getAttribute("token");
+            DriveSample.init(tokenData);
         }
         catch (TokenResponseException e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

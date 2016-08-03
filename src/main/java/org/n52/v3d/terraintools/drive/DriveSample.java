@@ -71,6 +71,8 @@ public class DriveSample {
     private static String UPLOAD_FILE_NAME = UPLOAD_FILE.getName();
     private static String UPLOAD_FILE_ID;
 
+    private static String DOWNLOAD_FILE_NAME;
+
     private static String USER_ID;
 
     public static Drive drive;
@@ -99,7 +101,7 @@ public class DriveSample {
             View.header1("Success!");
         }
         catch (Exception exception) {
-            System.err.println(exception);
+            exception.printStackTrace();
         }
     }
 
@@ -119,13 +121,17 @@ public class DriveSample {
         return USER_ID;
     }
 
+    public static String getDownloadFileName() {
+        return DOWNLOAD_FILE_NAME;
+    }
+
     public static void init(String tokenData) throws IOException {
         GoogleCredential credential = new GoogleCredential.Builder()
                 .setJsonFactory(JSON_FACTORY)
                 .setTransport(TRANSPORT)
                 .setClientSecrets(CLIENT_ID, CLIENT_SECRET).build()
                 .setFromTokenResponse(JSON_FACTORY.fromString(
-                                tokenData, GoogleTokenResponse.class));
+                        tokenData, GoogleTokenResponse.class));
         drive = new Drive.Builder(TRANSPORT, JSON_FACTORY, credential)
                 .setApplicationName(APPLICATION_NAME)
                 .build();
@@ -214,7 +220,7 @@ public class DriveSample {
 
         try {
             File file = drive.files().get(fileId).execute();
-            System.out.println("Title: " + file.getTitle());
+            DOWNLOAD_FILE_NAME = file.getTitle();
             if (file.getDownloadUrl() != null && file.getDownloadUrl().length() > 0) {
                 HttpResponse resp
                         = drive.getRequestFactory().buildGetRequest(new GenericUrl(file.getDownloadUrl()))
@@ -226,16 +232,6 @@ public class DriveSample {
             e.printStackTrace();
         }
         return null;
-    }
-
-    public static String getFileName(Drive service, String fileId) throws IOException {
-        try {
-            File file = drive.files().get(fileId).execute();
-            return file.getTitle();
-        }
-        catch (Exception exception) {
-            return null;
-        }
     }
 
 }

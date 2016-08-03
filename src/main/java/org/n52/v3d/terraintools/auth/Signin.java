@@ -40,6 +40,7 @@ import java.io.InputStreamReader;
  * @author Adhitya Kamakshidasan
  */
 public class Signin {
+
     /*
      * Default HTTP transport to use to make HTTP requests.
      */
@@ -64,8 +65,8 @@ public class Signin {
     static {
         try {
             clientSecrets = GoogleClientSecrets.load(JSON_FACTORY,
-                new InputStreamReader(Signin.class.getResourceAsStream("/client_secrets.json")));
-            System.out.println("Static serving from signin"+ clientSecrets);
+                    new InputStreamReader(Signin.class.getResourceAsStream("/client_secrets.json")));
+            System.out.println("Static serving from signin" + clientSecrets);
         }
         catch (IOException e) {
             throw new Error("No client_secrets.json found", e);

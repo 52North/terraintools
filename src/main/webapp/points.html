@@ -1,0 +1,87 @@
+<html>
+    <head>
+        <title>Terrain Points</title>
+        <script type="text/javascript" src="https://rawgit.com/kamakshidasan/terraintools/master/src/main/resources/picker.js"></script>
+        <script type="text/javascript">            
+            function onPointLoad() {
+                onApiLoad();
+                gapi.load('client', init);
+            }
+            
+            function init() {
+                gapi.client.setApiKey(clientId);
+            }
+            
+            function processDocument(doc) {
+                var url = 'nothing';
+                if (doc !== null) {
+                    document.getElementById('loading-icon').style.display = 'block';
+                    url = doc[google.picker.Document.URL];
+
+                    var file = doc;
+                    var downloadUrl;
+
+                    gapi.client.request({
+                        'path': '/drive/v2/files/' + file.id,
+                        'method': 'GET',
+                        callback: function (responsejs, responsetxt) {
+
+                            downloadUrl = responsejs.downloadUrl;
+
+                            var gDoxBlob = null;
+                            var xhr = new XMLHttpRequest();
+                            xhr.open("GET", downloadUrl);
+
+                            var accessToken = gapi.auth.getToken().access_token;
+                            
+                            xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+
+                            xhr.responseType = "blob";
+                            xhr.onload = function () {
+                                gDoxBlob = xhr.response;
+                                console.log(xhr.response);
+                                var myReader = new FileReader();
+                                myReader.onload = function (event) {
+                                    document.getElementById('pointsetData').value =
+                                            myReader.result;
+                                    document.getElementById('loading-icon').style.display = 'none';
+                                };
+                                myReader.readAsText(gDoxBlob);
+                            };
+                            xhr.send();
+
+                        }
+                    });
+                }
+                var message = 'You picked: ' + url;
+                document.getElementById('picked').innerHTML = message;
+            }
+        </script>
+    </head>
+    <body>
+        <form action='points' method='POST'>
+            Project Name: <input type='text' name='project' value='GSoC_Testing'/>
+            <br>
+            <br>
+            File Name: <input type='text' name='pointset' value='PointSet.xyz'/>
+            <br>
+            <br>
+            Enter your coordinates
+            <br>
+            <br>
+            <input type='hidden' name='request' value='newPointSet'>
+            <textarea name='data' id='pointsetData' rows='5' cols='50'></textarea>
+            <br>
+            <br>
+            <input type='submit' value='New Point Set'>
+            <p><a target='_blank' href='https://raw.githubusercontent.com/52North/terraintools/master/data/test.xyz'>Here</a> is a sample file!</p>
+        </form>
+        <div id='picked'></div>
+        <br>
+        <script type="text/javascript" src="https://apis.google.com/js/api.js?onload=onPointLoad"></script>
+        <button onclick='showPicker()'>Show Picker</button>
+        <br>
+        <br>
+        <img id="loading-icon" style="display:none;" src="https://ssl.gstatic.com/s2/oz/images/notifications/spinner_32_041dcfce66a2d43215abb96b38313ba0.gif"/>
+    </body>
+</html>

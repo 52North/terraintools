@@ -34,7 +34,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import static org.n52.v3d.terraintools.auth.Signin.GSON;
-import org.n52.v3d.terraintools.drive.DriveSample;
 
 public class PeopleServlet extends HttpServlet {
 
@@ -50,8 +49,8 @@ public class PeopleServlet extends HttpServlet {
             return;
         }
         try {
-            DriveSample.init(tokenData);
-            RequestDispatcher rd = request.getRequestDispatcher("points");  
+            // DriveSample.init(tokenData);
+            RequestDispatcher rd = request.getRequestDispatcher("points");
             rd.forward(request, response);
         }
         catch (IOException e) {
