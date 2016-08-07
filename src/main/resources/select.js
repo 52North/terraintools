@@ -156,6 +156,7 @@ function getWaterLevel() {
 }
 
 function flood() {
+    document.getElementById('loading-icon').style.display = 'block';
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if (xhttp.readyState == 4 && xhttp.status == 200) {
@@ -164,10 +165,13 @@ function flood() {
                 open();
                 write(xhttp.responseText);
                 close();
+                document.getElementById('loading-icon').style.display = 'none';
             }
         }
     };
-    xhttp.open("GET", '/flooding?position=' + getGridPosition() + '&waterlevel=' + getWaterLevel(), true);
+    xhttp.open("GET", '/flooding?position=' + getGridPosition() +
+            '&waterlevel=' + getWaterLevel() +
+            '&objId=' + getVisualizationId(), true);
     xhttp.send();
 }
 
@@ -176,19 +180,43 @@ function getSectionPoints() {
 }
 
 function getCrossSection() {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (xhttp.readyState == 4 && xhttp.status == 200) {
-            var win = window.open('about:blank');
-            with(win.document) {
-                open();
-                write(xhttp.responseText);
-                close();
+    if(crossSectionPoints.length <= 2){
+        alert("Select at least 2 points!");
+    }
+    else{
+        document.getElementById('loading-icon').style.display = 'block';
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (xhttp.readyState == 4 && xhttp.status == 200) {
+                var win = window.open('about:blank');
+                with(win.document) {
+                    open();
+                    write(xhttp.responseText);
+                    close();
+                    document.getElementById('loading-icon').style.display = 'none';
+                }
             }
+        };
+        xhttp.open("GET", '/crossSection?pos=' + getSectionPoints() +
+                        '&objId=' + getVisualizationId(), true);
+        xhttp.send();
+    }
+
+}
+
+function getVisualizationId(){
+    var metaTags = document.getElementsByTagName("meta");
+    var i = 0;
+    for (; i < metaTags.length; i++) {
+        if(metaTags[i].name === 'visualizationId'){
+            return metaTags[i].content;
         }
-    };
-    xhttp.open("GET", '/crossSection?pos=' + getSectionPoints(), true);
-    xhttp.send();
+    }
+}
+
+function restoreViewpoint(){
+	var e = document.getElementById('x3d');
+	e.runtime.showAll();
 }
 
 window.onload = function() {
@@ -216,6 +244,8 @@ window.onload = function() {
       		<tr><td>value: </td><td id="gridY">-</td></tr>\
       	</table>\
       	<br>\
+		<br>\
+		<input type="submit" value="Restore Viewpoint" onclick="restoreViewpoint()">\
       	<div id="gridValues"></div>\
       	<div id="situation" style="display:none;">\
       		Z Value: <input type="text" id="situationValue" size="10" value="5"><br>\
@@ -225,6 +255,7 @@ window.onload = function() {
       		<input type="submit" value="Show Flooding" onclick="flood()">\
       		<br>\
       		<input type="submit" value="Show Cross Section" onclick="getCrossSection()">\
+		<img id="loading-icon" style="display:none;" src="https://ssl.gstatic.com/s2/oz/images/notifications/spinner_32_041dcfce66a2d43215abb96b38313ba0.gif"/>\
       	</div>\
       </div>\
     ';

@@ -25,6 +25,10 @@
         <servlet-class>org.n52.v3d.terraintools.auth.ConnectServlet</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>DisconnectServlet</servlet-name>
+        <servlet-class>org.n52.v3d.terraintools.auth.DisconnectServlet</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>PeopleServlet</servlet-name>
         <servlet-class>org.n52.v3d.terraintools.auth.PeopleServlet</servlet-class>
     </servlet>
@@ -35,6 +39,10 @@
     <servlet-mapping>
         <servlet-name>ConnectServlet</servlet-name>
         <url-pattern>/connect</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DisconnectServlet</servlet-name>
+        <url-pattern>/disconnect</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>PeopleServlet</servlet-name>

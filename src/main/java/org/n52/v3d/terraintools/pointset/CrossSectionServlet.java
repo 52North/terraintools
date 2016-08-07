@@ -30,7 +30,6 @@ package org.n52.v3d.terraintools.pointset;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -58,21 +57,16 @@ import org.n52.v3d.triturus.vgis.VgProfile;
  */
 public class CrossSectionServlet extends HttpServlet {
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();
-
-        String visualizationId = (String) request.getSession().getAttribute("visualizationId");
-
-        InputStream inputStream = DriveSample.downloadFile(DriveSample.drive, visualizationId);
-
+    protected File makeTemporaryFile(InputStream inputStream) throws IOException {
         File pointsetFile = File.createTempFile("tmp-visualization", ".html");
         OutputStream outputStream = new FileOutputStream(pointsetFile);
         IOUtils.copy(inputStream, outputStream);
         outputStream.close();
 
+        return pointsetFile;
+    }
+
+    protected GmSimpleElevationGrid readGrid(File pointsetFile) {
         IoElevationGridReader reader = new IoElevationGridReader(IoElevationGridReader.X3DOM);
         GmSimpleElevationGrid grid = null;
         try {
@@ -81,9 +75,10 @@ public class CrossSectionServlet extends HttpServlet {
         catch (T3dException e) {
             e.printStackTrace();
         }
+        return grid;
+    }
 
-        String position = request.getParameter("pos");
-
+    protected String getPointString(GmSimpleElevationGrid grid, String position) {
         String[] points = position.split(",");
 
         String pointString = "";
@@ -101,36 +96,61 @@ public class CrossSectionServlet extends HttpServlet {
                 pointString = pointString + "," + value;
             }
         }
+        return pointString;
+    }
 
-        VgLineString defLine = new GmLineString(pointString);
-
+    protected void writeCrossSection(GmSimpleElevationGrid grid, VgLineString defLine, String crossSectionPath) {
         FltElevationGrid2Profile proc = new FltElevationGrid2Profile();
         VgProfile prof = proc.transform(grid, defLine);
 
-        String visualizationName = "cross-section.svg";
-        String visualizationPath = pointsetFile.getParent() + pointsetFile.separator + visualizationName;
-        
         IoProfileWriter lWriter = new IoProfileWriter(IoProfileWriter.SVG);
-        lWriter.writeToFile(prof, visualizationPath);
+        lWriter.writeToFile(prof, crossSectionPath);
+    }
 
-        File elevationFile = new File(visualizationPath);
-        
-        String tokenData = (String) request.getSession().getAttribute("token");
-        DriveSample driveSample = new DriveSample(DriveSample.PROJECT_FOLDER_NAME, visualizationName, elevationFile, tokenData);
+    protected String getCrossSectionPath(String name, File pointsetFile) {
+        return pointsetFile.getParent() + pointsetFile.separator + name;
+    }
 
+    protected void writeResponse(HttpServletResponse response, DriveSample driveSample, InputStream inputStream)
+            throws ServletException, IOException {
         response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
         String crossSectionId = driveSample.getObjectId();
         inputStream = DriveSample.downloadFile(DriveSample.drive, crossSectionId);
-        
+
         StringWriter writer = new StringWriter();
         IOUtils.copy(inputStream, writer);
         String x3dom = writer.toString();
         out.println(x3dom);
+    }
 
-        request.getSession().setAttribute("crossSectionId", crossSectionId);
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String visualizationId = request.getParameter("objId");
+        String position = request.getParameter("pos");
+
+        InputStream inputStream = DriveSample.downloadFile(DriveSample.drive, visualizationId);
+
+        File pointsetFile = makeTemporaryFile(inputStream);
+        GmSimpleElevationGrid grid = readGrid(pointsetFile);
+        String pointString = getPointString(grid, position);
+        VgLineString defLine = new GmLineString(pointString);
+
+        String crossSectionName = "cross-section.svg";
+        String crossSectionPath = getCrossSectionPath(crossSectionName, pointsetFile);
+
+        writeCrossSection(grid, defLine, crossSectionPath);
+
+        File elevationFile = new File(crossSectionPath);
+        String tokenData = (String) request.getSession().getAttribute("token");
+        DriveSample driveSample = new DriveSample(DriveSample.PROJECT_FOLDER_NAME, crossSectionName, elevationFile, tokenData);
+        
+        writeResponse(response, driveSample, inputStream);
+
         pointsetFile.delete();
         elevationFile.delete();
-        
+
     }
 
 }

@@ -28,17 +28,16 @@
 package org.n52.v3d.terraintools.pointset;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.io.FileUtils;
 import org.n52.v3d.terraintools.drive.DriveSample;
-import org.n52.v3d.triturus.examples.gridding.Gridding;
-import org.n52.v3d.triturus.gisimplm.GmPoint;
+import org.n52.v3d.terraintools.helper.PointsetValidation;
 
 /**
  *
@@ -46,82 +45,31 @@ import org.n52.v3d.triturus.gisimplm.GmPoint;
  */
 public class CoordinatesServlet extends HttpServlet {
 
+    protected void writeResponse(HttpServletResponse response, DriveSample driveSample)
+            throws ServletException, IOException {
+        PrintWriter out = response.getWriter();
+        response.setContentType("text/xml");
+        out.println("<?xml version='1.0' encoding=\"UTF-8\" standalone=\"no\" ?>");
+        //out.println("<?xml-stylesheet type=\"text/css\" href=\"terrainTools-style.css\"?>");
+        out.println("<terrainToolsResponse>");
+        out.println("  <userId>" + driveSample.getUserId() + "</userId>");
+        out.println("  <applicationId>" + driveSample.getApplicationId() + "</applicationId>");
+        out.println("  <projectId>" + driveSample.getProjectId() + "</projectId>");
+        out.println("  <pointsetId>" + driveSample.getObjectId() + "</pointsetId>");
+        out.println("</terrainToolsResponse>");
+    }
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();
-        out.println("<html>");
-        out.println("<head>");
-        out.println("<title>Terrain Points</title>");
-        out.println("</head>");
-        out.println("<body>");
-        out.println("<form action='points' method='POST'>");
-        out.println("Project Name: <input type='text' name='project' value='GSoC_Testing'/>");
-        out.println("<br>");
-        out.println("<br>");
-        out.println("File Name: <input type='text' name='pointset' value='PointSet.xyz'/>");
-        out.println("<br>");
-        out.println("<br>");
-        out.println("Enter your coordinates");
-        out.println("<br>");
-        out.println("<br>");
-        out.println("<input type='hidden' name='request' value='newPointSet'>");
-        out.println("<textarea name='data' id='pointsetData' rows='5' cols='50'></textarea>");
-        out.println("<br>");
-        out.println("<br>");
-        out.println("<input type='submit' value='New Point Set'>");
-        out.println("<p><a target=\"_blank\" href=\"https://raw.githubusercontent.com/52North/terraintools/master/data/test.xyz\">Here</a> is a sample file!</p>");
-        out.println("</form>");
-        out.println("<div id=\"picked\"></div>");
-        out.println("<button onclick=\"window.showPicker()\">Show Picker</button>");
-        out.println("</body>");
-        out.println("</html>");
+        RequestDispatcher rd = request.getRequestDispatcher("points.html");
+        rd.forward(request, response);
     }
 
-    protected boolean validatePointSet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();
-
-        boolean valid = true;
-        String data = request.getParameter("data");
-        ArrayList<GmPoint> points = new ArrayList();
-        String[] lines = data.split("\\n");
-
-        for (int i = 0; i < lines.length && valid == true; i++) {
-            String line = lines[i];
-            line = line.trim();
-            line = line.replaceAll(" +", " ");
-            line = line.replaceAll(" ", ",");
-            try {
-                GmPoint point = new GmPoint(line);
-                points.add(point);
-            }
-            catch (Exception exception) {
-                out.println("<p style=\"color:red\"><b>An error was found on line "
-                        + i + ": " + line + "</b></p>");
-                valid = false;
-            }
-        }
-
-        if (!valid) {
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>CoordinatesServlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h2>The following points were found: </h2>");
-            out.println("<ul>");
-            for (GmPoint point : points) {
-                out.println("<li>" + point.toString() + "</li>");
-            }
-            out.println("</ul>");
-            out.println("<h2>Number of coordinate points: " + points.size() + "</h2>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-        return valid;
+    protected File makeTemporaryFile(String data) throws IOException {
+        File file = File.createTempFile("tmp-pointset", ".xyz");
+        FileUtils.writeStringToFile(file, data);
+        return file;
     }
 
     @Override
@@ -129,7 +77,6 @@ public class CoordinatesServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        //HttpStandardResponse httpStandardResponse = new HttpStandardResponse();
 
         String requestType = request.getParameter("request");
         String data = request.getParameter("data");
@@ -137,42 +84,22 @@ public class CoordinatesServlet extends HttpServlet {
         String pointsetName = request.getParameter("pointset");
 
         if ("newPointSet".equalsIgnoreCase(requestType)) {
-            if (validatePointSet(request, response)) {
-                File file = File.createTempFile("tmp-pointset", ".xyz");
-                FileWriter writer = new FileWriter(file);
-                writer.write(data);
-                writer.flush();
-                writer.close();
-
+            if (PointsetValidation.validatePointSet(request, response)) {
+                File pointsetFile = makeTemporaryFile(data);
                 try {
                     String tokenData = (String) request.getSession().getAttribute("token");
-                    DriveSample driveSample = new DriveSample(project, pointsetName, file, tokenData);
-                    response.setContentType("text/xml");
-                    out.println("<?xml version='1.0' encoding=\"UTF-8\" standalone=\"no\" ?>");
-                    //out.println("<?xml-stylesheet type=\"text/css\" href=\"terrainTools-style.css\"?>");
-                    out.println("<terrainToolsResponse>");
-                    out.println("  <userId>"+driveSample.getUserId()+"</userId>");
-                    out.println("  <applicationId>"+driveSample.getApplicationId()+"</applicationId>");
-                    out.println("  <projectId>"+driveSample.getProjectId()+"</projectId>");
-                    out.println("  <pointsetId>"+driveSample.getObjectId()+"</pointsetId>");
-                    out.println("</terrainToolsResponse>");
-                    out.println();
-                    request.getSession().setAttribute("userId",driveSample.getUserId());
-                    request.getSession().setAttribute("applicationId",driveSample.getApplicationId());
-                    request.getSession().setAttribute("projectId",driveSample.getProjectId());
-                    request.getSession().setAttribute("pointsetId",driveSample.getObjectId());
+                    DriveSample driveSample = new DriveSample(project, pointsetName, pointsetFile, tokenData);
+                    writeResponse(response, driveSample);
                 }
                 catch (Exception exception) {
-                    out.println("Something bad happened with Google Drive! "+exception);
-                    //httpStandardResponse.sendException("Something bad happened with Google Drive! "+exception, response);
+                    out.println("Something bad happened with Google Drive! " + exception);
                 }
 
-                file.delete();
+                pointsetFile.delete();
             }
         }
         else {
             out.println("Illegal REQUEST parameter value.");
-            //httpStandardResponse.sendException("Illegal REQUEST parameter value.", response);
         }
     }
 

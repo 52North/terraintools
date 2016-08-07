@@ -31,16 +31,16 @@ package org.n52.v3d.terraintools.helper;
  * This class is meant to store all relative paths to files, that are used in
  * this project. This way, a relative path has to be changed only in this class
  * instead of changing it wherever it is needed.
- * 
+ *
  * @author Christian Danowski
- * 
+ *
  */
 public final class RelativePaths {
 
-	public static final String DATA_FOLDER = "data/";
+    public static final String DATA_FOLDER = "data/";
 
-	public static final String TEST_FOLDER = "test/";
+    public static final String TEST_FOLDER = "test/";
 
-	public static final String DATA_XYZ = DATA_FOLDER + "test.xyz";
+    public static final String DATA_XYZ = DATA_FOLDER + "test.xyz";
 
 }
